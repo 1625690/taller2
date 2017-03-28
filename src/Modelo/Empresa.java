@@ -11,4 +11,7 @@ package Modelo;
  */
 public class Empresa {
     
+    public Empresa(){
+        
+    }
 }
