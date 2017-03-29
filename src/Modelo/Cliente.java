@@ -126,9 +126,8 @@ public class Cliente {
 
     public void setReferencias(HashMap referencias) {
         this.referencias = referencias;
-    }
-    
-    public void modificarReferencias(int tipo, String nombre, String apellido, String cedula, String numeroContacto){
+    }  
+        public void modificarReferencias(int tipo, String nombre, String apellido, String cedula, String numeroContacto){
         Iterator it = referencias.values().iterator();
         Referencia referencia;
         for(int i=1; i==referencias.size();i++){
@@ -138,7 +137,7 @@ public class Cliente {
             referencia.setCedula(cedula);
             referencia.setNombre(nombre);
             referencia.setNumeroContacto(numeroContacto);
-            
+            referencia.setTipo(tipo);
         }
     }
 }
