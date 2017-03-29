@@ -127,7 +127,5 @@ public class Cliente {
 
     public void setReferencias(HashSet referencias) {
         this.referencias = referencias;
-    }
-    
-    
+    }    
 }
