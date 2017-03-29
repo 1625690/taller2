@@ -10,8 +10,40 @@ package Modelo;
  * @author invitado
  */
 public class Empresa {
-    
-    public Empresa(){
-        
+    //-------------------------------------------------------------------------
+    // ATRIBUTOS
+    //-------------------------------------------------------------------------
+    private String razonSocial, nit;
+    //-------------------------------------------------------------------------
+    // CONSTRUCTOR
+    //-------------------------------------------------------------------------
+    /**
+     * Constructor de una empresa
+     * @param razonSocial - Nombre de la empresa
+     * @param nit - Identificacion de la empresa
+     */
+    public Empresa(String razonSocial, String nit){
+        this.razonSocial = razonSocial;
+        this.nit = nit;
     }
+    //-------------------------------------------------------------------------
+    // GETS & SETS
+    //-------------------------------------------------------------------------
+
+    public String getRazonSocial() {
+        return razonSocial;
+    }
+
+    public void setRazonSocial(String razonSocial) {
+        this.razonSocial = razonSocial;
+    }
+
+    public String getNit() {
+        return nit;
+    }
+
+    public void setNit(String nit) {
+        this.nit = nit;
+    }
+    
 }

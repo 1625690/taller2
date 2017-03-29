@@ -7,14 +7,40 @@ package Modelo;
 
 import java.util.*;
 /**
- *
+ * Representa un cliente dentro de la entidad bancaria
  * @author invitado
  */
 public class Cliente {
     
+    //-------------------------------------------------------------------------
+    // ATRIBUTOS
+    //-------------------------------------------------------------------------
+    
+    /**
+     * Atributos 
+     */
     private String nombre, apellido, cedula, edad, genero, ingresos, egresos, actEconomica;
+    
+    /**
+     * Coleccion con las referencias del cliente
+     */
     private HashSet referencias;
     
+    //-------------------------------------------------------------------------
+    // CONSTRUCTOR
+    //-------------------------------------------------------------------------
+    
+    /**
+     * Constructor de Cliente
+     * @param nom - Nombre del cliente
+     * @param ape - Apellido del cliente
+     * @param ced - Cedula del cliente
+     * @param edad -  Edad del cliente
+     * @param genero - Genero del cliente
+     * @param in - Ingresos del cliente
+     * @param eg - Egresos del cliente
+     * @param act - Actividad económica
+     */
     public Cliente(String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
         this.nombre = nom;
         this.apellido = ape;
@@ -26,6 +52,10 @@ public class Cliente {
         this.actEconomica = act;
         this.referencias = new HashSet();
     }
+    
+    //-------------------------------------------------------------------------
+    // GETS & SETS
+    //-------------------------------------------------------------------------
 
     public String getNombre() {
         return nombre;
