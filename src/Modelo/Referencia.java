@@ -13,13 +13,14 @@ public class Referencia {
     //-------------------------------------------------------------------------
     // ATRIBUTOS
     //-------------------------------------------------------------------------
-    private String tipo, nombre, apellido, cedula, numeroContacto;
+    private String nombre, apellido, cedula, numeroContacto;
+    int tipo;
     
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
     //-------------------------------------------------------------------------
 
-    public Referencia(String tipo, String nombre, String apellido, String cedula, String numeroContacto) {
+    public Referencia(int tipo, String nombre, String apellido, String cedula, String numeroContacto) {
         this.tipo = tipo;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -30,11 +31,11 @@ public class Referencia {
     // ATRIBUTOS
     //-------------------------------------------------------------------------
 
-    public String getTipo() {
+    public int getTipo() {
         return tipo;
     }
 
-    public void setTipo(String tipo) {
+    public void setTipo(int tipo) {
         this.tipo = tipo;
     }
 
@@ -69,5 +70,4 @@ public class Referencia {
     public void setNumeroContacto(String numeroContacto) {
         this.numeroContacto = numeroContacto;
     }
-    
 }

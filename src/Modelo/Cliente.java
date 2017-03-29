@@ -24,7 +24,7 @@ public class Cliente {
     /**
      * Coleccion con las referencias del cliente
      */
-    private HashSet referencias;
+    private HashMap referencias;
     
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -50,13 +50,12 @@ public class Cliente {
         this.ingresos = in;
         this.egresos = eg;
         this.actEconomica = act;
-        this.referencias = new HashSet();
+        this.referencias = new HashMap();
     }
     
     //-------------------------------------------------------------------------
     // GETS & SETS
     //-------------------------------------------------------------------------
-
     public String getNombre() {
         return nombre;
     }
@@ -89,7 +88,7 @@ public class Cliente {
         return actEconomica;
     }
 
-    public HashSet getReferencias() {
+    public HashMap getReferencias() {
         return referencias;
     }
 
@@ -125,9 +124,21 @@ public class Cliente {
         this.actEconomica = actEconomica;
     }
 
-    public void setReferencias(HashSet referencias) {
+    public void setReferencias(HashMap referencias) {
         this.referencias = referencias;
     }
     
-    
+    public void modificarReferencias(int tipo, String nombre, String apellido, String cedula, String numeroContacto){
+        Iterator it = referencias.values().iterator();
+        Referencia referencia;
+        for(int i=1; i==referencias.size();i++){
+            it.hasNext();
+            referencia = (Referencia) referencias.get(it);
+            referencia.setApellido(apellido);
+            referencia.setCedula(cedula);
+            referencia.setNombre(nombre);
+            referencia.setNumeroContacto(numeroContacto);
+            
+        }
+    }
 }
