@@ -5,6 +5,7 @@
  */
 package Modelo;
 import java.util.*;
+import java.io.*;
 /**
  *
  * @author invitado
@@ -19,9 +20,11 @@ public class Banco {
     private HashMap clientesAceptados;
     private HashMap representantesEnEspera;
     private HashMap representantesAceptados;
+    private HashMap OFAC;
+    private HashMap OFACaux;
     
     //-------------------------------------------------------------------------
-    // CONSTRUSTOR
+    // CONSTRUCTOR
     //-------------------------------------------------------------------------
     
     public Banco(){
@@ -265,6 +268,59 @@ public class Banco {
     }    
     public void setRepresentantesEnEspera(HashMap Representantes) {
         this.representantesEnEspera = Representantes;
+    }
+    
+    public void cargarArchivo(){
+        BufferedReader br;
+        String lineaMasculina;
+        String parrafoMachoPechoPeludo="";
+        try{
+            br= new BufferedReader(new FileReader("sdnlist.txt"));
+            lineaMasculina = br.readLine();
+            while(lineaMasculina != null){
+                //System.out.println(lineaMasculina);
+                if(lineaMasculina.isEmpty()){
+                    //System.out.println("hay un salto");
+                    if(parrafoMachoPechoPeludo.contains("(Colombia)")){
+                        //System.out.println(parrafoMachoPechoPeludo);
+                        // INSERTAR metodo para leer parrafos
+                        parrafoMachoPechoPeludo = "";
+                    }
+                    else{
+                        parrafoMachoPechoPeludo = "";
+                    }
+                    
+                }
+                else{
+                    //System.out.println(lineaMasculina);
+                    parrafoMachoPechoPeludo= parrafoMachoPechoPeludo + "\n" + lineaMasculina;
+                    //System.out.println(parrafoMachoPechoPeludo);
+                    
+                }
+                lineaMasculina = br.readLine();
+                
+            }
+            br.close();
+            
+        }
+        catch(FileNotFoundException e){
+            System.out.println ("Archivo no encontrado");
+        }
+        catch(IOException e){
+            System.out.println("Algo esta mal :c");
+        }
+        catch(Exception e){
+            System.out.println("error");
+        }
+    }
+    public void analizarParrafo(String parrafoOvariosDeOro){
+        String[] almacenar;
+        almacenar = parrafoOvariosDeOro.split(",");
+    }
+    
+    public static void main(String[] args){
+        Banco banco = new Banco();
+        banco.cargarArchivo();
     }
   
 }
