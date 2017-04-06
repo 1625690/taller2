@@ -24,7 +24,8 @@ public class Cliente {
     /**
      * Coleccion con las referencias del cliente
      */
-    private HashMap referencias;
+    private HashMap referenciasCom;
+    private HashMap referenciasFam;
     
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -50,7 +51,8 @@ public class Cliente {
         this.ingresos = in;
         this.egresos = eg;
         this.actEconomica = act;
-        this.referencias = new HashMap();
+        this.referenciasCom = new HashMap();
+        this.referenciasFam = new HashMap();
     }
     
     //-------------------------------------------------------------------------
@@ -88,9 +90,13 @@ public class Cliente {
         return actEconomica;
     }
 
-    public HashMap getReferencias() {
-        return referencias;
+    public HashMap getReferenciasFam() {
+        return referenciasFam;
     }
+
+    public HashMap getReferenciasCom() {
+        return referenciasCom;
+    }    
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
@@ -124,20 +130,60 @@ public class Cliente {
         this.actEconomica = actEconomica;
     }
 
-    public void setReferencias(HashMap referencias) {
-        this.referencias = referencias;
+    public void setReferenciasFam(HashMap referencias) {
+        this.referenciasFam = referencias;
     }  
-        public void modificarReferencias(int tipo, String nombre, String apellido, String cedula, String numeroContacto){
-        Iterator it = referencias.values().iterator();
-        Referencia referencia;
-        for(int i=1; i==referencias.size();i++){
-            it.hasNext();
-            referencia = (Referencia) referencias.get(it);
-            referencia.setApellido(apellido);
-            referencia.setCedula(cedula);
-            referencia.setNombre(nombre);
-            referencia.setNumeroContacto(numeroContacto);
-            referencia.setTipo(tipo);
+        public String agregarReferenciasFam(Referencia referencia){
+        if (!referenciasFam.containsKey(referencia.getCedula())){
+                referenciasFam.put(referencia.getCedula(), referencia);
+            return "cliente adicionado con exito";
+        }else{
+            return "Ya existe el usuario";
         }
     }
+    public String eliminarReferenciasFam(String cedula){
+        if(referenciasFam.containsKey(cedula)){
+                referenciasFam.remove(cedula);
+            return "Cliente eliminado con exito";
+        }else{
+            return "el cliente no existe";
+        }
+    }
+        public String modificarReferenciasFam(int tipo, String nombre, String apellido, String cedula, String numeroContacto){
+        if (referenciasFam.containsKey(cedula)){
+            Referencia referencia= new Referencia(tipo, nombre, apellido, cedula, numeroContacto);
+            referenciasFam.put(referencia.getCedula(), referencia);
+            return "Referencia modificada correctamente";
+        }else {
+            return "No existe la referencia a modificar";
+        }
+    }
+    public void setReferenciasCom(HashMap referencias) {
+        this.referenciasCom = referencias;
+    }  
+        public String agregarReferenciasCom(Referencia referencia){
+        if (!referenciasCom.containsKey(referencia.getCedula())){
+                referenciasCom.put(referencia.getCedula(), referencia);
+            return "cliente adicionado con exito";
+        }else{
+            return "Ya existe el usuario";
+        }
+    }
+    public String eliminarReferenciasCom(String cedula){
+        if(referenciasCom.containsKey(cedula)){
+                referenciasCom.remove(cedula);
+            return "Cliente eliminado con exito";
+        }else{
+            return "el cliente no existe";
+        }
+    }
+        public String modificarReferenciasCom(int tipo, String nombre, String apellido, String cedula, String numeroContacto){
+        if (referenciasCom.containsKey(cedula)){
+            Referencia referencia= new Referencia(tipo, nombre, apellido, cedula, numeroContacto);
+            referenciasCom.put(referencia.getCedula(), referencia);
+            return "Referencia modificada correctamente";
+        }else {
+            return "No existe la referencia a modificar";
+        }
+    }        
 }
