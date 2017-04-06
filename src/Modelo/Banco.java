@@ -10,11 +10,19 @@ import java.util.*;
  * @author invitado
  */
 public class Banco {
+    
+    //-------------------------------------------------------------------------
+    // ATRIBUTOS
+    //-------------------------------------------------------------------------
     Cliente cliente;
     private HashMap clientesEnEspera;
     private HashMap clientesAceptados;
     private HashMap representantesEnEspera;
     private HashMap representantesAceptados;
+    
+    //-------------------------------------------------------------------------
+    // CONSTRUSTOR
+    //-------------------------------------------------------------------------
     
     public Banco(){
         
@@ -23,30 +31,11 @@ public class Banco {
         this.representantesEnEspera = new HashMap();
         this.representantesAceptados = new HashMap();
     }
-
-    public HashMap getClientesEnEspera() {
-        return clientesEnEspera;
-    }
-    public HashMap getClientesAceptados() {
-        return clientesAceptados;
-    }
-
-    public HashMap getRepresentantesEnEspera() {
-        return representantesEnEspera;
-    }
-    public HashMap getRepresentantesAceptados() {
-        return representantesAceptados;
-    }
-    public void setClientesEnEspera(HashMap Clientes) {
-        this.clientesEnEspera = Clientes;
-    }
-
-    public void setClientesAceptados(HashMap Clientes) {
-        this.clientesAceptados = Clientes;
-    }    
-    public void setRepresentantesEnEspera(HashMap Representantes) {
-        this.representantesEnEspera = Representantes;
-    }
+    
+    //-------------------------------------------------------------------------
+    // ATRIBUTOS
+    //-------------------------------------------------------------------------
+    
     public boolean revisarReferenciasCliente(Cliente cliente){
         if (cliente.getReferenciasCom().size()>=1 & cliente.getReferenciasFam().size() >=1){
             return true;
@@ -249,5 +238,33 @@ public class Banco {
     public void adicionarReferenciasCom(Representante representante, Referencia referencia){
         representante.agregarReferenciasCom(referencia);
     }    
+    
+    //-------------------------------------------------------------------------
+    // GETS AND SETS
+    //-------------------------------------------------------------------------
+
+    public HashMap getClientesEnEspera() {
+        return clientesEnEspera;
+    }
+    public HashMap getClientesAceptados() {
+        return clientesAceptados;
+    }
+
+    public HashMap getRepresentantesEnEspera() {
+        return representantesEnEspera;
+    }
+    public HashMap getRepresentantesAceptados() {
+        return representantesAceptados;
+    }
+    public void setClientesEnEspera(HashMap Clientes) {
+        this.clientesEnEspera = Clientes;
+    }
+
+    public void setClientesAceptados(HashMap Clientes) {
+        this.clientesAceptados = Clientes;
+    }    
+    public void setRepresentantesEnEspera(HashMap Representantes) {
+        this.representantesEnEspera = Representantes;
+    }
   
 }
