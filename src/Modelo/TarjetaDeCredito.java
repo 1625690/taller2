@@ -22,4 +22,69 @@ public class TarjetaDeCredito {
         this.gastoTotal=gastoTotal;
         this.cupoAvances=cupoAvances;
     }
+
+    public String getNumeroTarjeta() {
+        return numeroTarjeta;
+    }
+
+    public void setNumeroTarjeta(String numeroTarjeta) {
+        this.numeroTarjeta = numeroTarjeta;
+    }
+
+    public String getNumeroSeguridad() {
+        return numeroSeguridad;
+    }
+
+    public void setNumeroSeguridad(String numeroSeguridad) {
+        this.numeroSeguridad = numeroSeguridad;
+    }
+
+    public String getCupoTotal() {
+        return cupoTotal;
+    }
+
+    public void setCupoTotal(String cupoTotal) {
+        this.cupoTotal = cupoTotal;
+    }
+
+    public String getFechaExpedicion() {
+        return fechaExpedicion;
+    }
+
+    public void setFechaExpedicion(String fechaExpedicion) {
+        this.fechaExpedicion = fechaExpedicion;
+    }
+
+    public String getFechaDeVencimiento() {
+        return fechaDeVencimiento;
+    }
+
+    public void setFechaDeVencimiento(String fechaDeVencimiento) {
+        this.fechaDeVencimiento = fechaDeVencimiento;
+    }
+
+    public String getContraseñaAvances() {
+        return contraseñaAvances;
+    }
+
+    public void setContraseñaAvances(String contraseñaAvances) {
+        this.contraseñaAvances = contraseñaAvances;
+    }
+
+    public int getGastoTotal() {
+        return gastoTotal;
+    }
+
+    public void setGastoTotal(int gastoTotal) {
+        this.gastoTotal = gastoTotal;
+    }
+
+    public int getCupoAvances() {
+        return cupoAvances;
+    }
+
+    public void setCupoAvances(int cupoAvances) {
+        this.cupoAvances = cupoAvances;
+    }
+    
 }

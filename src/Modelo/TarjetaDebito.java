@@ -20,4 +20,29 @@ public class TarjetaDebito {
         this.fechaDeExpedicion=expedicion;
         this.estado=estado;
     }
+
+    public HashSet getAsociacion() {
+        return asociacion;
+    }
+
+    public void setAsociacion(HashSet asociacion) {
+        this.asociacion = asociacion;
+    }
+
+    public String getFechaDeExpedicion() {
+        return fechaDeExpedicion;
+    }
+
+    public void setFechaDeExpedicion(String fechaDeExpedicion) {
+        this.fechaDeExpedicion = fechaDeExpedicion;
+    }
+
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
+    }
+    
 }

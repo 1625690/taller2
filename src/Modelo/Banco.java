@@ -6,6 +6,7 @@
 package Modelo;
 import java.util.*;
 import java.io.*;
+import javax.swing.SpringLayout;
 /**
  *
  * @author invitado
@@ -313,9 +314,27 @@ public class Banco {
             System.out.println("error");
         }
     }
-    public void analizarParrafo(String parrafoOvariosDeOro){
+    // Sin probar posible fallo
+    // Para que esto funcione hay que habilitar OFAC para crear un Hash de OFACS
+    // Puede que falte funcion para combinar estos metodos...
+    public boolean analizarParrafo(String parrafo, String id){
         String[] almacenar;
-        almacenar = parrafoOvariosDeOro.split(",");
+        String aux;
+        boolean aid = true;
+        almacenar = parrafo.split(",");
+        for (int i=0; i==almacenar.length; i++){
+            aux = almacenar[i];
+            if (aux.contains("(Colombia)")){
+            break;
+            }
+            if (aux.contains("Cedula No.") || aux.contains("Matricula Mercantil No") || aux.contains("NIT #")){
+                if (aux.contains(id)){
+                    aid= false;
+                    System.out.println("usuario no aceptado");
+                }
+            }
+        }
+        return aid;
     }
     
     public static void main(String[] args){
