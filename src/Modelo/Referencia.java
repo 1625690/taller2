@@ -10,31 +10,16 @@ package Modelo;
  * @author invitado
  */
 public class Referencia {
-    
-    //-------------------------------------------------------------------------
-    // CONSTANTES
-    //-------------------------------------------------------------------------
-    
-    /**
-     * 
-     */
-    public static final int FAMILIAR = 0;
-    
-    /**
-     * 
-     */
-    public static final int COMERCIAL = 1;
     //-------------------------------------------------------------------------
     // ATRIBUTOS
     //-------------------------------------------------------------------------
-    private String nombre, apellido, cedula, numeroContacto;
-    int tipo;
+    private String tipo, nombre, apellido, cedula, numeroContacto;
     
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
     //-------------------------------------------------------------------------
 
-    public Referencia(int tipo, String nombre, String apellido, String cedula, String numeroContacto) {
+    public Referencia(String tipo, String nombre, String apellido, String cedula, String numeroContacto) {
         this.tipo = tipo;
         this.nombre = nombre;
         this.apellido = apellido;
@@ -45,11 +30,11 @@ public class Referencia {
     // ATRIBUTOS
     //-------------------------------------------------------------------------
 
-    public int getTipo() {
+    public String getTipo() {
         return tipo;
     }
 
-    public void setTipo(int tipo) {
+    public void setTipo(String tipo) {
         this.tipo = tipo;
     }
 
@@ -84,4 +69,6 @@ public class Referencia {
     public void setNumeroContacto(String numeroContacto) {
         this.numeroContacto = numeroContacto;
     }
+    
+    
 }

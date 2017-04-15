@@ -7,6 +7,7 @@ package Modelo;
 import java.util.*;
 import java.io.*;
 import javax.swing.SpringLayout;
+
 /**
  *
  * @author invitado
@@ -16,13 +17,13 @@ public class Banco {
     //-------------------------------------------------------------------------
     // ATRIBUTOS
     //-------------------------------------------------------------------------
-    Cliente cliente;
     private HashMap clientesEnEspera;
     private HashMap clientesAceptados;
     private HashMap representantesEnEspera;
     private HashMap representantesAceptados;
     private HashMap OFAC;
     private HashMap OFACaux;
+    private HashMap empresas;
     
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -34,215 +35,385 @@ public class Banco {
         this.clientesAceptados = new HashMap();
         this.representantesEnEspera = new HashMap();
         this.representantesAceptados = new HashMap();
+        this.empresas = new HashMap();
     }
     
-    //-------------------------------------------------------------------------
-    // ATRIBUTOS
-    //-------------------------------------------------------------------------
+    public String agregarEmpresa(String ced, Empresa empresa){
+        boolean encontrado = false;
+        Set nits = empresas.keySet();
+        Iterator i = nits.iterator();
+        while(i.hasNext() && (encontrado == false)){
+            String nit = (String) i.next();
+            Empresa e = (Empresa) empresas.get(nit);
+            if((empresa.equals(e)) == true){
+                encontrado = true;
+            }
+            else{
+                encontrado = false;
+            }
+        }
+        
+        if(representantesAceptados.containsKey(ced)){
+            Representante r = (Representante) representantesAceptados.get(ced);
+            if(!r.verificarEmpresa(ced) && (encontrado == false)){
+                r.agregarEmpresas(empresa);
+                representantesAceptados.put(ced, r);
+                empresas.put(empresa.getNit(), empresa);
+                return "La empresa se adiciono con exito";
+            }
+            else{
+                return "No se pudó agregar la empresa";
+            }
+        }else{
+            if(representantesEnEspera.containsKey(ced)){
+                Representante r = (Representante) representantesEnEspera.get(ced);
+                if(!r.verificarEmpresa(ced) && (encontrado == false)){
+                    r.agregarEmpresas(empresa);
+                    representantesEnEspera.put(ced, r);
+                    empresas.put(empresa.getNit(), empresa);
+                    return "La empresa se adiciono con exito";
+                }
+                else{
+                    return "No se pudó agregar la empresa";
+                }
+            }else{
+                return "No se pudó agregar la empresa";
+            }
+        }
+    }
     
-    public boolean revisarReferenciasCliente(Cliente cliente){
-        if (cliente.getReferenciasCom().size()>=1 & cliente.getReferenciasFam().size() >=1){
-            return true;
-        }else{return false;}
+    public boolean revisarReferenciasCliente(String ced){
+        Cliente c = (Cliente) clientesEnEspera.get(ced);
+        return c.revisarReferencias();
     }
-    public boolean revisarReferenciasRepresentante(Representante representate){
-        if (representate.getReferenciasCom().size()>=1 & representate.getReferenciasFam().size() >=1){
-            return true;
-        }else{return false;}
-    }    
-    public String agregarClientesEnEspera(Cliente cliente){
-        if (!clientesEnEspera.containsKey(cliente.getCedula())){
-                clientesEnEspera.put(cliente.getCedula(), cliente);
-            return "cliente adicionado con exito";
+    
+    public boolean revisarReferenciasRepresentante(String ced){
+        Representante r = (Representante) representantesEnEspera.get(ced);
+        return r.revisarReferencias();
+    }
+    
+    
+    public String agregarClientesEnEspera(boolean check, Representante r, Cliente c){
+        if(!clientesEnEspera.containsKey(c.getCedula()) && !representantesEnEspera.containsKey(r.getCedula())){
+            if (check = false){
+                clientesEnEspera.put(c.getCedula(), c);
+                return "cliente adicionado con exito";
+            }else{
+                representantesEnEspera.put(r.getCedula(), r);
+                return "cliente adicionado con exito";
+            }
         }else{
-            return "Ya existe el usuario";
+            return "No se pudo adicionar el cliente";
         }
     }
-    public String agregarClientesAceptados(Cliente cliente){
-        if (!clientesAceptados.containsKey(cliente.getCedula()) & revisarReferenciasCliente(cliente)){
-                clientesAceptados.put(cliente.getCedula(), cliente);
-            return "cliente adicionado con exito";
+    
+    public String agregarClientesAceptados(String ced){
+        
+        if(clientesEnEspera.containsKey(ced)){
+            Cliente c = (Cliente) clientesEnEspera.get(ced);
+            if(revisarReferenciasCliente(ced) && !clientesAceptados.containsKey(c.getCedula())){
+                clientesAceptados.put(c.getCedula(), c);
+                clientesEnEspera.remove(ced);
+                return "El cliente cumple los requisitos";
+            }else{
+                return "No se pudo agregar al cliente";
+            }
         }else{
-            return "Ya existe el usuario";
+            if(representantesEnEspera.containsKey(ced)){
+                Representante r = (Representante) representantesEnEspera.get(ced);
+                if(revisarReferenciasRepresentante(ced) && !representantesAceptados.containsKey(r.getCedula())){
+                    representantesAceptados.put(r.getCedula(), r);
+                    representantesEnEspera.remove(ced);
+                    return "El cliente cumple los requisitos";
+                }else{
+                    return "No se pudo agregar al cliente";
+                }
+            }else{
+                return "No se pudo agregar al cliente";
+            }
         }
     }
-    public String agregarRepresentantesEnEspera(Cliente cliente){
-        if (!representantesEnEspera.containsKey(cliente.getCedula())){
-                representantesEnEspera.put(cliente.getCedula(), cliente);
-            return "Representante adicionado con exito";
-        }else{
-            return "Ya existe el Representante";
-        }
-    }
-    public String agregarRepresentantesAceptados(Cliente cliente){
-        if (!representantesAceptados.containsKey(cliente.getCedula()) & revisarReferenciasCliente(cliente)){
-                representantesAceptados.put(cliente.getCedula(), cliente);
-            return "Representante adicionado con exito";
-        }else{
-            return "Ya existe el Representante";
-        }
-    }
-    public String eliminarClientesEnEspera(String cedula){
+    
+    public String eliminarClientes(String cedula){
         if(clientesEnEspera.containsKey(cedula)){
                 clientesEnEspera.remove(cedula);
             return "Representante eliminado con exito";
         }else{
-            return "el cliente no Representante";
-        }
-    }
-    public String eliminarClientesAceptados(String cedula){
-        if(clientesAceptados.containsKey(cedula)){
+            if(clientesAceptados.containsKey(cedula)){
                 clientesAceptados.remove(cedula);
-            return "Representante eliminado con exito";
-        }else{
-            return "el cliente no Representante";
+                return "Representante eliminado con exito";
+            }else{
+                if(representantesEnEspera.containsKey(cedula)){
+                    representantesEnEspera.remove(cedula);
+                    return "Representante eliminado con exito";
+                }else{
+                    if(representantesAceptados.containsKey(cedula)){
+                        representantesAceptados.remove(cedula);
+                        return "Representante eliminado con exito";
+                    }else{
+                        return "El representante no se pudo eliminar";
+                    }
+                }
+            }
         }
     }
-    public String eliminarRepresentantesEnEspera(String cedula){
-        if(representantesEnEspera.containsKey(cedula)){
-                representantesEnEspera.remove(cedula);
-            return "Representante eliminado con exito";
-        }else{
-            return "el cliente no Representante";
-        }
-    }
-    public String eliminarRepresentantesAceptados(String cedula){
-        if(representantesAceptados.containsKey(cedula)){
-                representantesAceptados.remove(cedula);
-            return "Representante eliminado con exito";
-        }else{
-            return "el cliente no Representante";
-        }
-    }
-    public String modificarClientesEnEspera(String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
-        if (clientesEnEspera.containsKey(ced)){
-            Cliente client;
-            //Referencia referencia;
-            client = (Cliente) clientesEnEspera.get(ced);
-            client.setCedula(ced);
-            client.setNombre(nom);
-            client.setApellido(ape);
-            client.setIngresos(in);
-            client.setEgresos(eg);
-            client.setEdad(edad);
-            client.setActEconomica(act);
-            //cliente.modificarReferencias(Referencia.COMERCIAL, nom, ape, ced, act);
-            return "cliente modificado con exito";
-        }else{
-            return "No se encontro el cliente";
-                    }
-    }
-    public String modificarClientesAceptados(String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
-        if (clientesAceptados.containsKey(ced)){
-            Cliente client;
-            //Referencia referencia;
-            client = (Cliente) clientesAceptados.get(ced);
-            client.setCedula(ced);
-            client.setNombre(nom);
-            client.setApellido(ape);
-            client.setIngresos(in);
-            client.setEgresos(eg);
-            client.setEdad(edad);
-            client.setActEconomica(act);
-            //cliente.modificarReferencias(Referencia.COMERCIAL, nom, ape, ced, act);
-            return "cliente modificado con exito";
-        }else{
-            return "No se encontro el cliente";
-                    }
-    }
-    public String modificarRepresentantesEnEspera(String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
-        if (representantesEnEspera.containsKey(ced)){
-            Cliente client;
-            //Referencia referencia;
-            client = (Cliente) representantesEnEspera.get(ced);
-            client.setCedula(ced);
-            client.setNombre(nom);
-            client.setApellido(ape);
-            client.setIngresos(in);
-            client.setEgresos(eg);
-            client.setEdad(edad);
-            client.setActEconomica(act);
-            //cliente.modificarReferencias(Referencia.COMERCIAL, nom, ape, ced, act);
-            return "cliente modificado con exito";
-        }else{
-            return "No se encontro el cliente";
-                    }
-    }
-    public String modificarRepresentantesAceptados(String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
-        if (representantesAceptados.containsKey(ced)){
-            Cliente client;
-            //Referencia referencia;
-            client = (Cliente) representantesAceptados.get(ced);
-            client.setCedula(ced);
-            client.setNombre(nom);
-            client.setApellido(ape);
-            client.setIngresos(in);
-            client.setEgresos(eg);
-            client.setEdad(edad);
-            client.setActEconomica(act);
-            //cliente.modificarReferencias(Referencia.COMERCIAL, nom, ape, ced, act);
-            return "cliente modificado con exito";
-        }else{
-            return "No se encontro el cliente";
-                    }
-    }
-    public Cliente consultarClientesEnEspera(String cedula){
-        Cliente client; 
-        client = (Cliente) clientesEnEspera.get(cedula);
-        return client;
-    }
-    public Cliente consultarClientesAceptados(String cedula){
-        Cliente client; 
-        cliente = (Cliente) clientesAceptados.get(cedula);
-        return cliente;
-    }
-    public Cliente consultarRepresentantesEnEspera(String cedula){
-        Cliente client; 
-        cliente = (Cliente) representantesEnEspera.get(cedula);
-        return cliente;
-    }
-    public Cliente consultarRepresentantesAceptados(String cedula){
-        Cliente client; 
-        cliente = (Cliente) representantesAceptados.get(cedula);
-        return cliente;
-    }
-    public void modificarReferenciasFam(Cliente cliente, int tipo, String nombre, String apellido, String cedula, String numeroContacto){
-        cliente.modificarReferenciasFam(tipo, nombre, apellido, cedula, numeroContacto);
-    }
-    public void eliminarReferenciasFam(Cliente cliente, String cedula){
-        cliente.eliminarReferenciasFam(cedula);
-    }
-    public void adicionarReferenciasFam(Cliente cliente, Referencia referencia){
-        cliente.agregarReferenciasFam(referencia);
-    }
-    public void modificarReferencias(Cliente cliente, int tipo, String nombre, String apellido, String cedula, String numeroContacto){
-        cliente.modificarReferenciasCom(tipo, nombre, apellido, cedula, numeroContacto);
-    }
-    public void eliminarReferencias(Cliente cliente, String cedula){
-        cliente.eliminarReferenciasCom(cedula);
-    }
-    public void adicionarReferenciasCom(Cliente cliente, Referencia referencia){
-        cliente.agregarReferenciasCom(referencia);
-    }
-    public void modificarReferenciasFam(Representante representante, int tipo, String nombre, String apellido, String cedula, String numeroContacto){
-        representante.modificarReferenciasFam(tipo, nombre, apellido, cedula, numeroContacto);
-    }
-    public void eliminarReferenciasFam(Representante representante, String cedula){
-        representante.eliminarReferenciasFam(cedula);
-    }
-    public void adicionarReferenciasFam(Representante representante, Referencia referencia){
-        representante.agregarReferenciasFam(referencia);
-    }
-    public void modificarReferencias(Representante representante, int tipo, String nombre, String apellido, String cedula, String numeroContacto){
-        representante.modificarReferenciasCom(tipo, nombre, apellido, cedula, numeroContacto);
-    }
-    public void eliminarReferencias(Representante representante, String cedula){
-        representante.eliminarReferenciasCom(cedula);
-    }
-    public void adicionarReferenciasCom(Representante representante, Referencia referencia){
-        representante.agregarReferenciasCom(referencia);
-    }    
     
+    public String modificarClientes(boolean check, String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
+        
+        if (clientesEnEspera.containsKey(ced)){
+            Cliente c = (Cliente) clientesEnEspera.get(ced);
+            if(check == false){
+                Cliente cliente = new Cliente(nom, ape, ced, edad, genero, in, eg, act);
+                cliente.setReferencias(c.getReferencias());
+                clientesEnEspera.put(cliente.getCedula(), cliente);
+                return "cliente modificado con exito";
+            }else{
+                Representante r = new Representante(nom, ape, ced, edad, genero, in, eg, act);
+                r.setReferencias(c.getReferencias());
+                representantesEnEspera.put(r.getCedula(), r);
+                eliminarClientes(ced);
+                return "cliente modificado con exito";
+            }
+        }else{
+            if(representantesEnEspera.containsKey(ced)){
+                Representante r = (Representante) representantesEnEspera.get(ced);
+                if(check == true){
+                    r.setNombre(nom);
+                    r.setApellido(ape);
+                    r.setIngresos(in);
+                    r.setEgresos(eg);
+                    r.setEdad(edad);
+                    r.setActEconomica(act);
+                    representantesEnEspera.put(r.getCedula(), r);
+                    return "cliente modificado con exito";
+                }else{
+                    Cliente c = new Cliente(nom, ape, ced, edad, genero, in, eg, act);
+                    c.setReferencias(r.getReferencias());
+                    clientesEnEspera.put(c.getCedula(), c);
+                    eliminarClientes(ced);
+                    return "cliente modificado con exito";
+                }
+            }else{
+                if (clientesAceptados.containsKey(ced)){
+                    Cliente c = (Cliente) clientesAceptados.get(ced);
+                    if(check == false){
+                        c.setNombre(nom);
+                        c.setApellido(ape);
+                        c.setIngresos(in);
+                        c.setEgresos(eg);
+                        c.setEdad(edad);
+                        c.setActEconomica(act);
+                        clientesAceptados.put(c.getCedula(), c);
+                        return "cliente modificado con exito";
+                    }else{
+                        Representante r = new Representante(nom, ape, ced, edad, genero, in, eg, act);
+                        r.setReferencias(c.getReferencias());
+                        representantesAceptados.put(r.getCedula(), r);
+                        eliminarClientes(ced);
+                        return "cliente modificado con exito";
+                    }
+                }else{
+                    if(representantesAceptados.containsKey(ced)){
+                        Representante r = (Representante) representantesAceptados.get(ced);
+                        if(check == true){
+                            r.setNombre(nom);
+                            r.setApellido(ape);
+                            r.setIngresos(in);
+                            r.setEgresos(eg);
+                            r.setEdad(edad);
+                            r.setActEconomica(act);
+                            representantesAceptados.put(r.getCedula(), r);
+                            return "cliente modificado con exito";
+                        }else{
+                            Cliente c = new Cliente(nom, ape, ced, edad, genero, in, eg, act);
+                            c.setReferencias(r.getReferencias());
+                            clientesAceptados.put(c.getCedula(), c);
+                            eliminarClientes(ced);
+                            return "cliente modificado con exito";
+                        }
+                    }else{
+                        return "El cliente no se pudó modificar";
+                    }
+                }
+            }
+        }
+    }
+    
+    public String consultarClientes(String cedula){
+        if(clientesEnEspera.containsKey(cedula)){
+            Cliente c = (Cliente) clientesEnEspera.get(cedula);
+            return  "Nombre: "+ c.getNombre() +
+                    "\n" + "Apellido: " + c.getApellido() +
+                    "\n" + "Cedula: " + c.getCedula() +
+                    "\n" + "Edad: " + c.getEdad() +
+                    "\n" + "Genero: " + c.getGenero() +
+                    "\n" + "Ingresos Mensuales: " + c.getIngresos() +
+                    "\n" + "Egresos Mensuales: " + c.getEgresos() +
+                    "\n" + "Actividad Economica: " + c.getActEconomica() +
+                    "\n" + c.cedulasReferencias();
+        }else{
+            if(clientesAceptados.containsKey(cedula)){
+                Cliente c = (Cliente) clientesAceptados.get(cedula);
+                return  "Nombre: "+ c.getNombre() +
+                        "\n" + "Apellido: " + c.getApellido() +
+                        "\n" + "Cedula: " + c.getCedula() +
+                        "\n" + "Edad: " + c.getEdad() +
+                        "\n" + "Genero: " + c.getGenero() +
+                        "\n" + "Ingresos Mensuales: " + c.getIngresos() +
+                        "\n" + "Egresos Mensuales: " + c.getEgresos() +
+                        "\n" + "Actividad Economica: " + c.getActEconomica() +
+                        "\n" + c.cedulasReferencias();
+            }else{
+                if(representantesEnEspera.containsKey(cedula)){
+                    Representante r = (Representante) representantesEnEspera.get(cedula);
+                    return  "Nombre: "+ r.getNombre() +
+                            "\n" + "Apellido: " + r.getApellido() +
+                            "\n" + "Cedula: " + r.getCedula() +
+                            "\n" + "Edad: " + r.getEdad() +
+                            "\n" + "Genero: " + r.getGenero() +
+                            "\n" + "Ingresos Mensuales: " + r.getIngresos() +
+                            "\n" + "Egresos Mensuales: " + r.getEgresos() +
+                            "\n" + "Actividad Economica: " + r.getActEconomica() +
+                            "\n" + r.cedulasReferencias() +
+                            "\n" + r.consultarEmpresas();
+                }else{
+                    if(representantesAceptados.containsKey(cedula)){
+                        Representante r = (Representante) representantesEnEspera.get(cedula);
+                    return  "Nombre: "+ r.getNombre() +
+                            "\n" + "Apellido: " + r.getApellido() +
+                            "\n" + "Cedula: " + r.getCedula() +
+                            "\n" + "Edad: " + r.getEdad() +
+                            "\n" + "Genero: " + r.getGenero() +
+                            "\n" + "Ingresos Mensuales: " + r.getIngresos() +
+                            "\n" + "Egresos Mensuales: " + r.getEgresos() +
+                            "\n" + "Actividad Economica: " + r.getActEconomica() +
+                            "\n" + r.cedulasReferencias() +
+                            "\n" + r.consultarEmpresas();
+                    }else{
+                        return "No se encontró al cliente";
+                    }
+                }
+            }
+        }
+    }
+    
+    public String adicionarReferencias(String ced, Referencia referencia){
+        String salida;
+        if(clientesEnEspera.containsKey(ced)){
+            Cliente c = (Cliente) clientesEnEspera.get(ced);
+            salida = c.agregarReferencias(referencia);
+            clientesEnEspera.put(ced, c);
+        }else{
+            if(clientesAceptados.containsKey(ced)){
+                Cliente c = (Cliente) clientesAceptados.get(ced);
+                salida = c.agregarReferencias(referencia);
+                clientesAceptados.put(ced, c);
+            }else{
+                if(representantesEnEspera.containsKey(ced)){
+                    Representante r = (Representante) representantesEnEspera.get(ced);
+                    salida = r.agregarReferencias(referencia);
+                    representantesEnEspera.put(ced, r);
+                }else{
+                    if(representantesAceptados.containsKey(ced)){
+                        Representante r = (Representante) representantesAceptados.get(ced);
+                        salida = r.agregarReferencias(referencia);
+                        representantesAceptados.put(ced, r);  
+                    }else{
+                        salida = "La referencia no se pudó agregar";
+                    }
+                }
+            }
+        }
+        return salida;
+    }
+    
+    public String modificarReferencias(String ced, Referencia referencia){
+        String salida;
+        if(clientesEnEspera.containsKey(ced)){
+            Cliente c = (Cliente) clientesEnEspera.get(ced);
+            salida = c.modificarReferencias(referencia);
+            clientesEnEspera.put(ced, c);
+        }else{
+            if(clientesAceptados.containsKey(ced)){
+                Cliente c = (Cliente) clientesAceptados.get(ced);
+                salida = c.modificarReferencias(referencia);
+                clientesAceptados.put(ced, c);
+            }else{
+                if(representantesEnEspera.containsKey(ced)){
+                    Representante r = (Representante) representantesEnEspera.get(ced);
+                    salida = r.modificarReferencias(referencia);
+                    representantesEnEspera.put(ced, r);
+                }else{
+                    if(representantesAceptados.containsKey(ced)){
+                        Representante r = (Representante) representantesAceptados.get(ced);
+                        salida = r.modificarReferencias(referencia);
+                        representantesAceptados.put(ced, r);
+                    }else{
+                        salida = "La referencia no se pudó modificar";
+                    }
+                }
+            }
+        }
+        return salida;
+    }
+    
+    public String eliminarReferencias(String ced, String cedula){
+        String salida;
+        if(clientesEnEspera.containsKey(ced)){
+            Cliente c = (Cliente) clientesEnEspera.get(ced);
+            salida = c.eliminarReferencias(cedula);
+            clientesEnEspera.put(ced, c);
+        }else{
+            if(clientesAceptados.containsKey(ced)){
+                Cliente c = (Cliente) clientesAceptados.get(ced);
+                salida = c.eliminarReferencias(cedula);
+                clientesAceptados.put(ced, c);
+            }else{
+                if(representantesEnEspera.containsKey(ced)){
+                    Representante r = (Representante) representantesEnEspera.get(ced);
+                    representantesEnEspera.put(ced, r);
+                    salida = r.eliminarReferencias(cedula);
+                }else{
+                    if(representantesAceptados.containsKey(ced)){
+                        Representante r = (Representante) representantesAceptados.get(ced);
+                        representantesAceptados.put(ced, r);
+                        salida = r.eliminarReferencias(cedula);
+                        
+                    }else{
+                        salida = "La referencia no se pudó eliminar";
+                    }
+                }
+            }
+        }
+        return salida;
+    }
+    
+    public String consultarReferencias(String ced, String cedula){
+        String salida;
+        if(clientesEnEspera.containsKey(ced)){
+            Cliente c = (Cliente) clientesEnEspera.get(ced);
+            salida = c.consultarReferencias(cedula);
+        }else{
+            if(clientesAceptados.containsKey(ced)){
+                Cliente c = (Cliente) clientesAceptados.get(ced);
+                salida = c.consultarReferencias(cedula);
+            }else{
+                if(representantesEnEspera.containsKey(ced)){
+                    Representante r = (Representante) representantesEnEspera.get(ced);
+                    salida = r.consultarReferencias(cedula);
+                }else{
+                    if(representantesAceptados.containsKey(ced)){
+                        Representante r = (Representante) representantesAceptados.get(ced);
+                        salida = r.eliminarReferencias(cedula);
+                    }else{
+                        salida = "No se encontro la referencia";
+                    }
+                }
+            }
+        }
+        return salida;
+    }
+       
     //-------------------------------------------------------------------------
     // GETS AND SETS
     //-------------------------------------------------------------------------

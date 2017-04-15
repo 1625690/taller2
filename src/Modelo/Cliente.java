@@ -24,8 +24,7 @@ public class Cliente {
     /**
      * Coleccion con las referencias del cliente
      */
-    private HashMap referenciasCom;
-    private HashMap referenciasFam;
+    private HashMap referencias;
     
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -51,8 +50,7 @@ public class Cliente {
         this.ingresos = in;
         this.egresos = eg;
         this.actEconomica = act;
-        this.referenciasCom = new HashMap();
-        this.referenciasFam = new HashMap();
+        this.referencias = new HashMap();
     }
     
     //-------------------------------------------------------------------------
@@ -90,13 +88,9 @@ public class Cliente {
         return actEconomica;
     }
 
-    public HashMap getReferenciasFam() {
-        return referenciasFam;
-    }
-
-    public HashMap getReferenciasCom() {
-        return referenciasCom;
-    }    
+    public HashMap getReferencias() {
+        return referencias;
+    }  
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
@@ -130,60 +124,96 @@ public class Cliente {
         this.actEconomica = actEconomica;
     }
 
-    public void setReferenciasFam(HashMap referencias) {
-        this.referenciasFam = referencias;
-    }  
-        public String agregarReferenciasFam(Referencia referencia){
-        if (!referenciasFam.containsKey(referencia.getCedula())){
-                referenciasFam.put(referencia.getCedula(), referencia);
-            return "cliente adicionado con exito";
+    public void setReferencias(HashMap referencias) {
+        this.referencias = referencias;
+    }
+    
+    public String agregarReferencias(Referencia referencia){
+        if (!referencias.containsKey(referencia.getCedula())){
+                referencias.put(referencia.getCedula(), referencia);
+            return "La referencia se agregó con exito";
         }else{
-            return "Ya existe el usuario";
+            return "No se pudó agregar la referencia";
         }
     }
-    public String eliminarReferenciasFam(String cedula){
-        if(referenciasFam.containsKey(cedula)){
-                referenciasFam.remove(cedula);
-            return "Cliente eliminado con exito";
+    public String eliminarReferencias(String cedula){
+        if(referencias.containsKey(cedula)){
+                referencias.remove(cedula);
+            return "La referencia se ha eliminado exitosamente";
         }else{
-            return "el cliente no existe";
+            return "La referencia no se pudó eliminar";
         }
     }
-        public String modificarReferenciasFam(int tipo, String nombre, String apellido, String cedula, String numeroContacto){
-        if (referenciasFam.containsKey(cedula)){
-            Referencia referencia= new Referencia(tipo, nombre, apellido, cedula, numeroContacto);
-            referenciasFam.put(referencia.getCedula(), referencia);
+    
+    public String modificarReferencias(Referencia referencia){
+        if(referencias.containsKey(referencia.getCedula())){
+            referencias.put(referencia.getCedula(), referencia);
             return "Referencia modificada correctamente";
-        }else {
-            return "No existe la referencia a modificar";
-        }
-    }
-    public void setReferenciasCom(HashMap referencias) {
-        this.referenciasCom = referencias;
-    }  
-        public String agregarReferenciasCom(Referencia referencia){
-        if (!referenciasCom.containsKey(referencia.getCedula())){
-                referenciasCom.put(referencia.getCedula(), referencia);
-            return "cliente adicionado con exito";
         }else{
-            return "Ya existe el usuario";
+            return "No exite la referencia a modificar";
         }
     }
-    public String eliminarReferenciasCom(String cedula){
-        if(referenciasCom.containsKey(cedula)){
-                referenciasCom.remove(cedula);
-            return "Cliente eliminado con exito";
+    
+    public String consultarReferencias(String cedula){
+        if(referencias.containsKey(cedula)){
+            Referencia ref = (Referencia) referencias.get(cedula);
+            return  "Tipo: "+ ref.getTipo() +
+                    "\n" + "Nombre: " + ref.getNombre() +
+                    "\n" + "Apellido: " + ref.getApellido() +
+                    "\n" + "Cedula: " + ref.getCedula() +
+                    "\n" + "# de Contacto: " + ref.getNumeroContacto();
         }else{
-            return "el cliente no existe";
+            return "No se encontro la referencia";
         }
     }
-        public String modificarReferenciasCom(int tipo, String nombre, String apellido, String cedula, String numeroContacto){
-        if (referenciasCom.containsKey(cedula)){
-            Referencia referencia= new Referencia(tipo, nombre, apellido, cedula, numeroContacto);
-            referenciasCom.put(referencia.getCedula(), referencia);
-            return "Referencia modificada correctamente";
-        }else {
-            return "No existe la referencia a modificar";
+    
+    public String cedulasReferencias(){
+        String salida = "Referencias: ";
+        Set cedulas = referencias.keySet();
+        Iterator i = cedulas.iterator();
+        while(i.hasNext()){
+            String ced = (String) i.next();
+            Referencia ref = (Referencia) referencias.get(ced);
+            salida += ref.getCedula() + "\n";
         }
-    }        
+        return salida;
+    }
+    
+    public boolean revisarReferencias(){
+        boolean hayRefFam = false;
+        boolean hayRefCom = false;
+        boolean estanAmbas = false;
+        
+        Set cedulas = referencias.keySet();
+        Iterator i = cedulas.iterator();
+        while(i.hasNext()){
+            String ced = (String) i.next();
+            Referencia ref = (Referencia) referencias.get(ced);
+            if(ref.getTipo() == "Referencia Familiar"){
+                hayRefFam =true;
+                break;
+            }
+        }
+        while(i.hasNext()){
+            String ced = (String) i.next();
+            Referencia ref = (Referencia) referencias.get(ced);
+            if(ref.getTipo() == "Referencia Comercial"){
+                hayRefCom =true;
+                break;
+            }
+        }
+        
+        if((hayRefFam == true) && (hayRefCom == true)){
+            estanAmbas = true;
+        }else{
+            estanAmbas = false;
+        }
+        
+        return estanAmbas;
+    }
 }
+
+        
+    
+        
+    
