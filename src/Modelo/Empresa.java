@@ -14,6 +14,7 @@ public class Empresa {
     // ATRIBUTOS
     //-------------------------------------------------------------------------
     private String razonSocial, nit;
+    private Cliente clienteasociado;
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
     //-------------------------------------------------------------------------
@@ -44,6 +45,13 @@ public class Empresa {
 
     public void setNit(String nit) {
         this.nit = nit;
+    }
+    
+    public Cliente getClienteAsociado(){    
+        return clienteasociado;
+    }
+    public void setClienteAsociao(Cliente cliente){
+        this.clienteasociado = cliente;
     }
     
 }
