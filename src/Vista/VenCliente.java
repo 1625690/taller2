@@ -457,8 +457,14 @@ public class VenCliente extends javax.swing.JInternalFrame {
         String eg = jTextField8.getText();
         String act = jTextField9.getText();
         boolean check = this.jCheckBox1.isSelected();
+        String per;
+        if(check == true){
+            per = "Representante Legal";
+        }else{
+            per = "Persona Natural";
+        }
         
-        JOptionPane.showMessageDialog(this, this.miControl.modificarClientes(check, nom, ape, ced, edad, genero, in, eg, act));
+        JOptionPane.showMessageDialog(this, this.miControl.modificarClientes(check, per, "", nom, ape, ced, edad, genero, in, eg, act));
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton14ActionPerformed
@@ -479,8 +485,14 @@ public class VenCliente extends javax.swing.JInternalFrame {
         String eg = jTextField8.getText();
         String act = jTextField9.getText();
         boolean check = jCheckBox1.isSelected();
+        String per;
+        if(check == true){
+            per = "Representante Legal";
+        }else{
+            per = "Persona Natural";
+        }
         
-        JOptionPane.showMessageDialog(this, this.miControl.agregarClientesEnEspera(check, nom, ape, ced, edad, genero, in, eg, act));
+        JOptionPane.showMessageDialog(this, this.miControl.agregarClientesEnEspera(check, per, "En espera de revisión", nom, ape, ced, edad, genero, in, eg, act));
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -503,10 +515,10 @@ public class VenCliente extends javax.swing.JInternalFrame {
         String num = jTextField4.getText();
         boolean ref = this.jRadioButton2.isSelected();
         String tipo;
-        if(ref = true){
+        if(ref == true){
             tipo = "Referencia Familiar";
         }else{
-            tipo = "Reerencia Comercial";
+            tipo = "Referencia Comercial";
         }
         
         JOptionPane.showMessageDialog(this, this.miControl.adicionarReferencias(cedula, tipo, nom, ape, ced, num));   
