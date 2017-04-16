@@ -39,9 +39,9 @@ public class Controladora {
         return banco.agregarEmpresa(ced, empresa);
     }
     
-    public String agregarClientesEnEspera(boolean check, String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
-        Cliente cliente = new Cliente(nom, ape, ced, edad, genero, in, eg, act);
-        Representante representante = new Representante(nom, ape, ced, edad, genero, in, eg, act);
+    public String agregarClientesEnEspera(boolean check, String per, String est, String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
+        Cliente cliente = new Cliente(per, est, nom, ape, ced, edad, genero, in, eg, act);
+        Representante representante = new Representante(per, est, nom, ape, ced, edad, genero, in, eg, act);
         return banco.agregarClientesEnEspera(check, representante, cliente);
     }
     
@@ -53,8 +53,8 @@ public class Controladora {
         return banco.eliminarClientes(cedula);
     }
     
-    public String modificarClientes(boolean check, String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
-        return banco.modificarClientes(check, nom, ape, ced, edad, genero, in, eg, act);
+    public String modificarClientes(boolean check, String per, String est, String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
+        return banco.modificarClientes(check, per, est, nom, ape, ced, edad, genero, in, eg, act);
     }
     
     public String consultarClientes(String cedula){

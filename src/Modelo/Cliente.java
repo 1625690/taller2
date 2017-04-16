@@ -19,7 +19,7 @@ public class Cliente {
     /**
      * Atributos 
      */
-    private String nombre, apellido, cedula, edad, genero, ingresos, egresos, actEconomica;
+    private String persona, estado, nombre, apellido, cedula, edad, genero, ingresos, egresos, actEconomica;
     
     /**
      * Coleccion con las referencias del cliente
@@ -41,7 +41,9 @@ public class Cliente {
      * @param eg - Egresos del cliente
      * @param act - Actividad económica
      */
-    public Cliente(String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
+    public Cliente(String per, String est, String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
+        this.persona = per;
+        this.estado = est;
         this.nombre = nom;
         this.apellido = ape;
         this.cedula = ced;  
@@ -56,6 +58,15 @@ public class Cliente {
     //-------------------------------------------------------------------------
     // GETS & SETS
     //-------------------------------------------------------------------------
+
+    public String getPersona() {
+        return persona;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+    
     public String getNombre() {
         return nombre;
     }
@@ -92,8 +103,16 @@ public class Cliente {
         return referencias;
     }  
 
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public void setPersona(String persona) {
+        this.persona = persona;
     }
 
     public void setApellido(String apellido) {
@@ -127,6 +146,8 @@ public class Cliente {
     public void setReferencias(HashMap referencias) {
         this.referencias = referencias;
     }
+    
+    
     
     public String agregarReferencias(Referencia referencia){
         if (!referencias.containsKey(referencia.getCedula())){
@@ -186,20 +207,22 @@ public class Cliente {
         
         Set cedulas = referencias.keySet();
         Iterator i = cedulas.iterator();
-        while(i.hasNext()){
+        while(i.hasNext() && (hayRefFam == false)){
             String ced = (String) i.next();
             Referencia ref = (Referencia) referencias.get(ced);
             if(ref.getTipo() == "Referencia Familiar"){
-                hayRefFam =true;
-                break;
+                hayRefFam = true;
+            }else{
+                hayRefFam = false;
             }
         }
-        while(i.hasNext()){
+        while(i.hasNext() && (hayRefCom == false)){
             String ced = (String) i.next();
             Referencia ref = (Referencia) referencias.get(ced);
             if(ref.getTipo() == "Referencia Comercial"){
-                hayRefCom =true;
-                break;
+                hayRefCom = true;
+            }else{
+                hayRefCom = false;
             }
         }
         
@@ -208,7 +231,6 @@ public class Cliente {
         }else{
             estanAmbas = false;
         }
-        
         return estanAmbas;
     }
 }

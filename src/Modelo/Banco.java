@@ -19,8 +19,6 @@ public class Banco {
     //-------------------------------------------------------------------------
     private HashMap clientesEnEspera;
     private HashMap clientesAceptados;
-    private HashMap representantesEnEspera;
-    private HashMap representantesAceptados;
     private HashMap OFAC;
     private HashMap OFACaux;
     private HashMap empresas;
@@ -33,8 +31,8 @@ public class Banco {
         
         this.clientesEnEspera = new HashMap();
         this.clientesAceptados = new HashMap();
-        this.representantesEnEspera = new HashMap();
-        this.representantesAceptados = new HashMap();
+        //this.representantesEnEspera = new HashMap();
+        //this.representantesAceptados = new HashMap();
         this.empresas = new HashMap();
     }
     
@@ -45,7 +43,7 @@ public class Banco {
         while(i.hasNext() && (encontrado == false)){
             String nit = (String) i.next();
             Empresa e = (Empresa) empresas.get(nit);
-            if((empresa.equals(e)) == true){
+            if(e.getNit() == empresa.getNit()){
                 encontrado = true;
             }
             else{
@@ -53,11 +51,11 @@ public class Banco {
             }
         }
         
-        if(representantesAceptados.containsKey(ced)){
-            Representante r = (Representante) representantesAceptados.get(ced);
+        if(clientesAceptados.containsKey(ced)){
+            Representante r = (Representante) clientesAceptados.get(ced);
             if(!r.verificarEmpresa(ced) && (encontrado == false)){
                 r.agregarEmpresas(empresa);
-                representantesAceptados.put(ced, r);
+                clientesAceptados.put(ced, r);
                 empresas.put(empresa.getNit(), empresa);
                 return "La empresa se adiciono con exito";
             }
@@ -65,11 +63,11 @@ public class Banco {
                 return "No se pudó agregar la empresa";
             }
         }else{
-            if(representantesEnEspera.containsKey(ced)){
-                Representante r = (Representante) representantesEnEspera.get(ced);
+            if(clientesEnEspera.containsKey(ced)){
+                Representante r = (Representante) clientesEnEspera.get(ced);
                 if(!r.verificarEmpresa(ced) && (encontrado == false)){
                     r.agregarEmpresas(empresa);
-                    representantesEnEspera.put(ced, r);
+                    clientesEnEspera.put(ced, r);
                     empresas.put(empresa.getNit(), empresa);
                     return "La empresa se adiciono con exito";
                 }
@@ -83,23 +81,26 @@ public class Banco {
     }
     
     public boolean revisarReferenciasCliente(String ced){
-        Cliente c = (Cliente) clientesEnEspera.get(ced);
-        return c.revisarReferencias();
+        if(clientesEnEspera.containsKey(ced)){
+            Cliente c = (Cliente) clientesEnEspera.get(ced);
+            Representante r = (Representante) clientesEnEspera.get(ced);
+            if(c.getPersona() == "Persona Natural"){
+                return c.revisarReferencias();
+            }else{
+                return r.revisarReferencias();
+            }
+        }else{
+            return false;
+        }
     }
-    
-    public boolean revisarReferenciasRepresentante(String ced){
-        Representante r = (Representante) representantesEnEspera.get(ced);
-        return r.revisarReferencias();
-    }
-    
     
     public String agregarClientesEnEspera(boolean check, Representante r, Cliente c){
-        if(!clientesEnEspera.containsKey(c.getCedula()) && !representantesEnEspera.containsKey(r.getCedula())){
+        if(!clientesEnEspera.containsKey(c.getCedula()) && !clientesEnEspera.containsKey(r.getCedula())){
             if (check = false){
                 clientesEnEspera.put(c.getCedula(), c);
                 return "cliente adicionado con exito";
             }else{
-                representantesEnEspera.put(r.getCedula(), r);
+                clientesEnEspera.put(r.getCedula(), r);
                 return "cliente adicionado con exito";
             }
         }else{
@@ -111,150 +112,112 @@ public class Banco {
         
         if(clientesEnEspera.containsKey(ced)){
             Cliente c = (Cliente) clientesEnEspera.get(ced);
-            if(revisarReferenciasCliente(ced) && !clientesAceptados.containsKey(c.getCedula())){
+            Representante r = (Representante) clientesEnEspera.get(ced);
+            if((revisarReferenciasCliente(ced) == true) && !clientesAceptados.containsKey(c.getCedula()) && (c.getPersona() == "Persona Natural")){
+                c.setEstado("Aceptado");
                 clientesAceptados.put(c.getCedula(), c);
                 clientesEnEspera.remove(ced);
                 return "El cliente cumple los requisitos";
             }else{
-                return "No se pudo agregar al cliente";
-            }
-        }else{
-            if(representantesEnEspera.containsKey(ced)){
-                Representante r = (Representante) representantesEnEspera.get(ced);
-                if(revisarReferenciasRepresentante(ced) && !representantesAceptados.containsKey(r.getCedula())){
-                    representantesAceptados.put(r.getCedula(), r);
-                    representantesEnEspera.remove(ced);
+                if((revisarReferenciasCliente(ced) == true) && !clientesAceptados.containsKey(r.getCedula()) && (c.getPersona() == "Representante Legal")){
+                    r.setEstado("Aceptado");
+                    clientesAceptados.put(r.getCedula(), r);
+                    clientesEnEspera.remove(ced);
                     return "El cliente cumple los requisitos";
                 }else{
                     return "No se pudo agregar al cliente";
                 }
-            }else{
-                return "No se pudo agregar al cliente";
             }
+        }else{
+            return "No se pudo agregar al cliente";
         }
     }
     
     public String eliminarClientes(String cedula){
         if(clientesEnEspera.containsKey(cedula)){
                 clientesEnEspera.remove(cedula);
-            return "Representante eliminado con exito";
+            return "Cliente eliminado con exito";
         }else{
             if(clientesAceptados.containsKey(cedula)){
                 clientesAceptados.remove(cedula);
-                return "Representante eliminado con exito";
+                return "Cliente eliminado con exito";
             }else{
-                if(representantesEnEspera.containsKey(cedula)){
-                    representantesEnEspera.remove(cedula);
-                    return "Representante eliminado con exito";
-                }else{
-                    if(representantesAceptados.containsKey(cedula)){
-                        representantesAceptados.remove(cedula);
-                        return "Representante eliminado con exito";
-                    }else{
-                        return "El representante no se pudo eliminar";
-                    }
-                }
+                return "El representante no se pudo eliminar";
             }
         }
     }
     
-    public String modificarClientes(boolean check, String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
+    public String modificarClientes(boolean check, String per, String est, String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
         
         if (clientesEnEspera.containsKey(ced)){
             Cliente c = (Cliente) clientesEnEspera.get(ced);
-            if(check == false){
-                Cliente cliente = new Cliente(nom, ape, ced, edad, genero, in, eg, act);
-                cliente.setReferencias(c.getReferencias());
-                clientesEnEspera.put(cliente.getCedula(), cliente);
+            if(c.getPersona() == "Persona Natural"){
+                c.setPersona(per);
+                c.setNombre(nom);
+                c.setApellido(ape);
+                c.setIngresos(in);
+                c.setEgresos(eg);
+                c.setEdad(edad);
+                c.setGenero(genero);
+                c.setActEconomica(act);
+                clientesEnEspera.put(c.getCedula(), c);
                 return "cliente modificado con exito";
             }else{
-                Representante r = new Representante(nom, ape, ced, edad, genero, in, eg, act);
-                r.setReferencias(c.getReferencias());
-                representantesEnEspera.put(r.getCedula(), r);
-                eliminarClientes(ced);
+                Representante r = (Representante) clientesEnEspera.get(ced);
+                r.setPersona(per);
+                r.setNombre(nom);
+                r.setApellido(ape);
+                r.setIngresos(in);
+                r.setEgresos(eg);
+                r.setEdad(edad);
+                r.setGenero(genero);
+                r.setActEconomica(act);
+                clientesEnEspera.put(r.getCedula(), r);
                 return "cliente modificado con exito";
             }
         }else{
-            if(representantesEnEspera.containsKey(ced)){
-                Representante r = (Representante) representantesEnEspera.get(ced);
-                if(check == true){
+            if(clientesAceptados.containsKey(ced)){
+                Cliente c = (Cliente) clientesAceptados.get(ced);
+                if(c.getPersona() == "Persona Natural"){
+                    c.setPersona(per);
+                    c.setNombre(nom);
+                    c.setApellido(ape);
+                    c.setIngresos(in);
+                    c.setEgresos(eg);
+                    c.setEdad(edad);
+                    c.setGenero(genero);
+                    c.setActEconomica(act);
+                    clientesAceptados.put(c.getCedula(), c);
+                    return "cliente modificado con exito";
+                }else{
+                    Representante r = (Representante) clientesAceptados.get(ced);
+                    r.setPersona(per);
                     r.setNombre(nom);
                     r.setApellido(ape);
                     r.setIngresos(in);
                     r.setEgresos(eg);
                     r.setEdad(edad);
+                    r.setGenero(genero);
                     r.setActEconomica(act);
-                    representantesEnEspera.put(r.getCedula(), r);
-                    return "cliente modificado con exito";
-                }else{
-                    Cliente c = new Cliente(nom, ape, ced, edad, genero, in, eg, act);
-                    c.setReferencias(r.getReferencias());
-                    clientesEnEspera.put(c.getCedula(), c);
-                    eliminarClientes(ced);
+                    clientesAceptados.put(r.getCedula(), r);
                     return "cliente modificado con exito";
                 }
             }else{
-                if (clientesAceptados.containsKey(ced)){
-                    Cliente c = (Cliente) clientesAceptados.get(ced);
-                    if(check == false){
-                        c.setNombre(nom);
-                        c.setApellido(ape);
-                        c.setIngresos(in);
-                        c.setEgresos(eg);
-                        c.setEdad(edad);
-                        c.setActEconomica(act);
-                        clientesAceptados.put(c.getCedula(), c);
-                        return "cliente modificado con exito";
-                    }else{
-                        Representante r = new Representante(nom, ape, ced, edad, genero, in, eg, act);
-                        r.setReferencias(c.getReferencias());
-                        representantesAceptados.put(r.getCedula(), r);
-                        eliminarClientes(ced);
-                        return "cliente modificado con exito";
-                    }
-                }else{
-                    if(representantesAceptados.containsKey(ced)){
-                        Representante r = (Representante) representantesAceptados.get(ced);
-                        if(check == true){
-                            r.setNombre(nom);
-                            r.setApellido(ape);
-                            r.setIngresos(in);
-                            r.setEgresos(eg);
-                            r.setEdad(edad);
-                            r.setActEconomica(act);
-                            representantesAceptados.put(r.getCedula(), r);
-                            return "cliente modificado con exito";
-                        }else{
-                            Cliente c = new Cliente(nom, ape, ced, edad, genero, in, eg, act);
-                            c.setReferencias(r.getReferencias());
-                            clientesAceptados.put(c.getCedula(), c);
-                            eliminarClientes(ced);
-                            return "cliente modificado con exito";
-                        }
-                    }else{
-                        return "El cliente no se pudó modificar";
-                    }
-                }
+                return "El cliente no se pudó modificar";
             }
         }
     }
+            
+            
+                
     
     public String consultarClientes(String cedula){
         if(clientesEnEspera.containsKey(cedula)){
             Cliente c = (Cliente) clientesEnEspera.get(cedula);
-            return  "Nombre: "+ c.getNombre() +
-                    "\n" + "Apellido: " + c.getApellido() +
-                    "\n" + "Cedula: " + c.getCedula() +
-                    "\n" + "Edad: " + c.getEdad() +
-                    "\n" + "Genero: " + c.getGenero() +
-                    "\n" + "Ingresos Mensuales: " + c.getIngresos() +
-                    "\n" + "Egresos Mensuales: " + c.getEgresos() +
-                    "\n" + "Actividad Economica: " + c.getActEconomica() +
-                    "\n" + c.cedulasReferencias();
-        }else{
-            if(clientesAceptados.containsKey(cedula)){
-                Cliente c = (Cliente) clientesAceptados.get(cedula);
-                return  "Nombre: "+ c.getNombre() +
+            if(c.getPersona() == "Persona Natural"){
+                return  "Persona: " + c.getPersona() +
+                        "\n" + "Estado: " + c.getEstado() +
+                        "\n" + "Nombre: " + c.getNombre() +
                         "\n" + "Apellido: " + c.getApellido() +
                         "\n" + "Cedula: " + c.getCedula() +
                         "\n" + "Edad: " + c.getEdad() +
@@ -264,35 +227,52 @@ public class Banco {
                         "\n" + "Actividad Economica: " + c.getActEconomica() +
                         "\n" + c.cedulasReferencias();
             }else{
-                if(representantesEnEspera.containsKey(cedula)){
-                    Representante r = (Representante) representantesEnEspera.get(cedula);
-                    return  "Nombre: "+ r.getNombre() +
-                            "\n" + "Apellido: " + r.getApellido() +
-                            "\n" + "Cedula: " + r.getCedula() +
-                            "\n" + "Edad: " + r.getEdad() +
-                            "\n" + "Genero: " + r.getGenero() +
-                            "\n" + "Ingresos Mensuales: " + r.getIngresos() +
-                            "\n" + "Egresos Mensuales: " + r.getEgresos() +
-                            "\n" + "Actividad Economica: " + r.getActEconomica() +
-                            "\n" + r.cedulasReferencias() +
-                            "\n" + r.consultarEmpresas();
-                }else{
-                    if(representantesAceptados.containsKey(cedula)){
-                        Representante r = (Representante) representantesEnEspera.get(cedula);
-                    return  "Nombre: "+ r.getNombre() +
-                            "\n" + "Apellido: " + r.getApellido() +
-                            "\n" + "Cedula: " + r.getCedula() +
-                            "\n" + "Edad: " + r.getEdad() +
-                            "\n" + "Genero: " + r.getGenero() +
-                            "\n" + "Ingresos Mensuales: " + r.getIngresos() +
-                            "\n" + "Egresos Mensuales: " + r.getEgresos() +
-                            "\n" + "Actividad Economica: " + r.getActEconomica() +
-                            "\n" + r.cedulasReferencias() +
-                            "\n" + r.consultarEmpresas();
-                    }else{
-                        return "No se encontró al cliente";
-                    }
-                }
+                Representante r = (Representante) clientesEnEspera.get(cedula);
+                return  "Persona: " + r.getPersona() +
+                        "\n" + "Estado: " + r.getEstado() +
+                        "\n" + "Nombre: " + r.getNombre() +
+                        "\n" + "Apellido: " + r.getApellido() +
+                        "\n" + "Cedula: " + r.getCedula() +
+                        "\n" + "Edad: " + r.getEdad() +
+                        "\n" + "Genero: " + r.getGenero() +
+                        "\n" + "Ingresos Mensuales: " + r.getIngresos() +
+                        "\n" + "Egresos Mensuales: " + r.getEgresos() +
+                        "\n" + "Actividad Economica: " + r.getActEconomica() +
+                        "\n" + r.cedulasReferencias() +
+                        "\n" + r.consultarEmpresas();
+            }
+        }else{
+            if(clientesAceptados.containsKey(cedula)){
+                Cliente c = (Cliente) clientesAceptados.get(cedula);
+                if(c.getPersona() == "Persona Natural"){
+                return  "Persona: " + c.getPersona() +
+                        "\n" + "Estado: " + c.getEstado() +
+                        "\n" + "Nombre: " + c.getNombre() +
+                        "\n" + "Apellido: " + c.getApellido() +
+                        "\n" + "Cedula: " + c.getCedula() +
+                        "\n" + "Edad: " + c.getEdad() +
+                        "\n" + "Genero: " + c.getGenero() +
+                        "\n" + "Ingresos Mensuales: " + c.getIngresos() +
+                        "\n" + "Egresos Mensuales: " + c.getEgresos() +
+                        "\n" + "Actividad Economica: " + c.getActEconomica() +
+                        "\n" + c.cedulasReferencias();
+            }else{
+                Representante r = (Representante) clientesAceptados.get(cedula);
+                return  "Persona: " + r.getPersona() +
+                        "\n" + "Estado: " + r.getEstado() +
+                        "\n" + "Nombre: " + r.getNombre() +
+                        "\n" + "Apellido: " + r.getApellido() +
+                        "\n" + "Cedula: " + r.getCedula() +
+                        "\n" + "Edad: " + r.getEdad() +
+                        "\n" + "Genero: " + r.getGenero() +
+                        "\n" + "Ingresos Mensuales: " + r.getIngresos() +
+                        "\n" + "Egresos Mensuales: " + r.getEgresos() +
+                        "\n" + "Actividad Economica: " + r.getActEconomica() +
+                        "\n" + r.cedulasReferencias() +
+                        "\n" + r.consultarEmpresas();
+            }
+        }else{
+                return "No se encontró el cliente";
             }
         }
     }
@@ -301,27 +281,27 @@ public class Banco {
         String salida;
         if(clientesEnEspera.containsKey(ced)){
             Cliente c = (Cliente) clientesEnEspera.get(ced);
-            salida = c.agregarReferencias(referencia);
-            clientesEnEspera.put(ced, c);
+            if(c.getPersona() == "Persona Natural"){
+                salida = c.agregarReferencias(referencia);
+                clientesEnEspera.put(ced, c);
+            }else{
+                Representante r = (Representante) clientesEnEspera.get(ced);
+                salida = r.agregarReferencias(referencia);
+                clientesEnEspera.put(ced, r);
+            }
         }else{
             if(clientesAceptados.containsKey(ced)){
                 Cliente c = (Cliente) clientesAceptados.get(ced);
-                salida = c.agregarReferencias(referencia);
-                clientesAceptados.put(ced, c);
-            }else{
-                if(representantesEnEspera.containsKey(ced)){
-                    Representante r = (Representante) representantesEnEspera.get(ced);
-                    salida = r.agregarReferencias(referencia);
-                    representantesEnEspera.put(ced, r);
+                if(c.getPersona() == "Persona Natural"){
+                    salida = c.agregarReferencias(referencia);
+                    clientesAceptados.put(ced, c);
                 }else{
-                    if(representantesAceptados.containsKey(ced)){
-                        Representante r = (Representante) representantesAceptados.get(ced);
-                        salida = r.agregarReferencias(referencia);
-                        representantesAceptados.put(ced, r);  
-                    }else{
-                        salida = "La referencia no se pudó agregar";
-                    }
+                    Representante r = (Representante) clientesAceptados.get(ced);
+                    salida = r.agregarReferencias(referencia);
+                    clientesAceptados.put(ced, r);
                 }
+            }else{
+                salida = "La referencia no se pudó agregar";
             }
         }
         return salida;
@@ -331,58 +311,57 @@ public class Banco {
         String salida;
         if(clientesEnEspera.containsKey(ced)){
             Cliente c = (Cliente) clientesEnEspera.get(ced);
-            salida = c.modificarReferencias(referencia);
-            clientesEnEspera.put(ced, c);
+            if(c.getPersona() == "Persona Natural"){
+                salida = c.modificarReferencias(referencia);
+                clientesEnEspera.put(ced, c);
+            }else{
+                Representante r = (Representante) clientesEnEspera.get(ced);
+                salida = r.modificarReferencias(referencia);
+                clientesEnEspera.put(ced, r);
+            }
         }else{
             if(clientesAceptados.containsKey(ced)){
                 Cliente c = (Cliente) clientesAceptados.get(ced);
-                salida = c.modificarReferencias(referencia);
-                clientesAceptados.put(ced, c);
-            }else{
-                if(representantesEnEspera.containsKey(ced)){
-                    Representante r = (Representante) representantesEnEspera.get(ced);
-                    salida = r.modificarReferencias(referencia);
-                    representantesEnEspera.put(ced, r);
+                if(c.getPersona() == "Persona Natural"){
+                    salida = c.modificarReferencias(referencia);
+                    clientesAceptados.put(ced, c);
                 }else{
-                    if(representantesAceptados.containsKey(ced)){
-                        Representante r = (Representante) representantesAceptados.get(ced);
-                        salida = r.modificarReferencias(referencia);
-                        representantesAceptados.put(ced, r);
-                    }else{
-                        salida = "La referencia no se pudó modificar";
-                    }
+                    Representante r = (Representante) clientesAceptados.get(ced);
+                    salida = r.modificarReferencias(referencia);
+                    clientesAceptados.put(ced, r);
                 }
+            }else{
+                salida = "La referencia no se pudó modificar";
             }
         }
         return salida;
     }
     
     public String eliminarReferencias(String ced, String cedula){
-        String salida;
+       String salida;
         if(clientesEnEspera.containsKey(ced)){
             Cliente c = (Cliente) clientesEnEspera.get(ced);
-            salida = c.eliminarReferencias(cedula);
-            clientesEnEspera.put(ced, c);
+            if(c.getPersona() == "Persona Natural"){
+                salida = c.eliminarReferencias(cedula);
+                clientesEnEspera.put(ced, c);
+            }else{
+                Representante r = (Representante) clientesEnEspera.get(ced);
+                salida = r.eliminarReferencias(cedula);
+                clientesEnEspera.put(ced, r);
+            }
         }else{
             if(clientesAceptados.containsKey(ced)){
                 Cliente c = (Cliente) clientesAceptados.get(ced);
-                salida = c.eliminarReferencias(cedula);
-                clientesAceptados.put(ced, c);
-            }else{
-                if(representantesEnEspera.containsKey(ced)){
-                    Representante r = (Representante) representantesEnEspera.get(ced);
-                    representantesEnEspera.put(ced, r);
-                    salida = r.eliminarReferencias(cedula);
+                if(c.getPersona() == "Persona Natural"){
+                    salida = c.eliminarReferencias(cedula);
+                    clientesAceptados.put(ced, c);
                 }else{
-                    if(representantesAceptados.containsKey(ced)){
-                        Representante r = (Representante) representantesAceptados.get(ced);
-                        representantesAceptados.put(ced, r);
-                        salida = r.eliminarReferencias(cedula);
-                        
-                    }else{
-                        salida = "La referencia no se pudó eliminar";
-                    }
+                    Representante r = (Representante) clientesAceptados.get(ced);
+                    salida = r.eliminarReferencias(cedula);
+                    clientesAceptados.put(ced, r);
                 }
+            }else{
+                salida = "La referencia no se pudó eliminar";
             }
         }
         return salida;
@@ -392,23 +371,23 @@ public class Banco {
         String salida;
         if(clientesEnEspera.containsKey(ced)){
             Cliente c = (Cliente) clientesEnEspera.get(ced);
-            salida = c.consultarReferencias(cedula);
+            if(c.getPersona() == "Persona Natural"){
+                salida = c.consultarReferencias(cedula);
+            }else{
+                Representante r = (Representante) clientesEnEspera.get(ced);
+                salida = r.consultarReferencias(cedula);
+            }
         }else{
             if(clientesAceptados.containsKey(ced)){
                 Cliente c = (Cliente) clientesAceptados.get(ced);
-                salida = c.consultarReferencias(cedula);
-            }else{
-                if(representantesEnEspera.containsKey(ced)){
-                    Representante r = (Representante) representantesEnEspera.get(ced);
-                    salida = r.consultarReferencias(cedula);
+                if(c.getPersona() == "Persona Natural"){
+                    salida = c.consultarReferencias(cedula);
                 }else{
-                    if(representantesAceptados.containsKey(ced)){
-                        Representante r = (Representante) representantesAceptados.get(ced);
-                        salida = r.eliminarReferencias(cedula);
-                    }else{
-                        salida = "No se encontro la referencia";
-                    }
+                    Representante r = (Representante) clientesAceptados.get(ced);
+                    salida = r.consultarReferencias(cedula);
                 }
+            }else{
+                salida = "No se encontró la referencia";
             }
         }
         return salida;
@@ -424,23 +403,14 @@ public class Banco {
     public HashMap getClientesAceptados() {
         return clientesAceptados;
     }
-
-    public HashMap getRepresentantesEnEspera() {
-        return representantesEnEspera;
-    }
-    public HashMap getRepresentantesAceptados() {
-        return representantesAceptados;
-    }
+    
     public void setClientesEnEspera(HashMap Clientes) {
         this.clientesEnEspera = Clientes;
     }
 
     public void setClientesAceptados(HashMap Clientes) {
         this.clientesAceptados = Clientes;
-    }    
-    public void setRepresentantesEnEspera(HashMap Representantes) {
-        this.representantesEnEspera = Representantes;
-    }
+    } 
     
     public void cargarArchivo(){
         BufferedReader br;

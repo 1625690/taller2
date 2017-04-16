@@ -34,8 +34,8 @@ public class Representante extends Cliente{
      * @param eg - Egresos del cliente
      * @param act - Actividad económica
      */
-    public Representante(String nom, String ape, String ced, String edad, String genero, String in, String eg, String act) {
-        super(nom, ape, ced, edad, genero, in, eg, act);
+    public Representante(String per, String est, String nom, String ape, String ced, String edad, String genero, String in, String eg, String act) {
+        super(per, est, nom, ape, ced, edad, genero, in, eg, act);
         this.empresas = new HashMap();
     }
 
