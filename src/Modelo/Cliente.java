@@ -59,11 +59,11 @@ public class Cliente {
         this.egresos = eg;
         this.actEconomica = act;
         this.referencias = new HashMap();
-        CuentaCorriente cc = this.cuentaCorriente;
-        CuentaDeAhorros ca = this.cuentaDeAhorros;
-        TarjetaDeCredito tc = this.tarjetaC;
-        TarjetaDebito td = this.tarjetaD;
-        Chequera c = this.chequera;
+        this.cuentaCorriente = null;
+        this.cuentaDeAhorros = null;
+        this.tarjetaC = null;
+        this.tarjetaD = null;
+        this.chequera = null;
     }
     
     //-------------------------------------------------------------------------
@@ -290,10 +290,14 @@ public class Cliente {
     }
     
     public String consultarCCorriente(){
+        if(cuentaCorriente != null){
         return  "Número de cuenta: "+ cuentaCorriente.getNumeroCuenta() +
                 "\n" + "Saldo: " + cuentaCorriente.getSaldo() +
                 "\n" + "Disponibilidad de sobregiro: " + cuentaCorriente.getDisponibilidadDeSobregiro() +
                 "\n" + "Interés de rentabilidad mensual: " + cuentaCorriente.getInteresDeRentabilidadMensual();
+        }else{
+            return "No se encontro cuenta";
+        }
     }
     
     public void crearCAhorros(String num, String saldo, String IRM){
@@ -360,6 +364,14 @@ public class Cliente {
     public void agregarCheque(Cheque cheque){
         chequera.agregarCheque(cheque);
     }
+    
+   public String numeroCuentaC(){
+       if(cuentaCorriente != null){
+           return cuentaCorriente.getNumeroCuenta();
+       }else{
+           return "No tiene";
+       }
+   }
 }
 
         

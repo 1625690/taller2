@@ -17,8 +17,8 @@ public class TarjetaDebito {
     private String fechaDeExpedicion, estado;
     
     public TarjetaDebito(String expedicion, String estado){
-        CuentaCorriente cc = this.cuentaCorriente;
-        CuentaDeAhorros ca = this.cuentaDeAhorros;
+        this.cuentaCorriente = null;
+        this.cuentaDeAhorros = null;
         this.fechaDeExpedicion = expedicion;
         this.estado = estado;
     }

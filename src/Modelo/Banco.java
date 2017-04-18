@@ -222,11 +222,6 @@ public class Banco {
         if(clientesEnEspera.containsKey(cedula)){
             Cliente c = (Cliente) clientesEnEspera.get(cedula);
             if(c.getPersona() == "Persona Natural"){
-                CuentaCorriente cc = c.getCuentaCorriente();
-                CuentaDeAhorros ca = c.getCuentaDeAhorros();
-                TarjetaDeCredito tc = c.getTarjetaC();
-                TarjetaDebito td = c.getTarjetaD();
-                Chequera che = c.getChequera();
                 return  "Persona: " + c.getPersona() +
                         "\n" + "Estado: " + c.getEstado() +
                         "\n" + "Nombre: " + c.getNombre() +
@@ -238,11 +233,11 @@ public class Banco {
                         "\n" + "Egresos Mensuales: " + c.getEgresos() +
                         "\n" + "Actividad Economica: " + c.getActEconomica() +
                         "\n" + c.cedulasReferencias() +
-                        "\n" + "Cuenta corriente: " + cc.getNumeroCuenta() +
-                        "\n" + "Cuenta de ahorros: " + ca.getNumeroCuenta() +
-                        "\n" + "Tarjeta de credito: " + tc.getNumeroTarjeta() +
-                        "\n" + "Tarjeta debito: " + td.getEstado() +
-                        "\n" + "Chequera: " + che.getNumeroChequera();
+                        "\n" + "Cuenta corriente: " + c.numeroCuentaC() +
+                        "\n" + "Cuenta de ahorros: " + c.numeroCuentaA() +
+                        "\n" + "Tarjeta de credito: " + c.numeroTarjetaC() +
+                        "\n" + "Tarjeta debito: " + c.estado() +
+                        "\n" + "Chequera: " + c.numeroChequera();
             }else{
                 Representante r = (Representante) clientesEnEspera.get(cedula);
                 CuentaCorriente cc = r.getCuentaCorriente();

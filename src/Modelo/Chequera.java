@@ -20,6 +20,7 @@ public class Chequera {
         this.numeroChequera = numChequera;
         this.cantidadCheques = "0";
         this.cheques = new HashSet();
+        this.cuentaC = null;
     }
 
     public String getNumeroChequera() {
