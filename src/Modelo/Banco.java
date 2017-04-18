@@ -1009,31 +1009,42 @@ public class Banco {
                 almacenar = parrafo.split(";");
                 for (int j=0;j<almacenar.length;j++){
                     if (almacenar[j].contains("Cedula No.") && almacenar[j].contains("(Colombia)")){
-                        auxiliar = analizarLineaCedulas(almacenar[j]);
+                        for(int k=0;k<analizarLineaCedulas(almacenar[j]).size();k++){
+                            auxiliar.add(analizarLineaCedulas(almacenar[j]).get(k));
+                        }                            
                     }
                 }
             }
+            System.out.println(auxiliar);
             return auxiliar;
     }
     
+    /**
+     * Busca la linea donde se encuentran las cedulas de colombia
+     * @param parrafo - string con el parrafor a analizar
+     * @return lista de cedulas colombianas encontradas en la lista OFAC
+     */
     public ArrayList analizarLineaCedulas(String parrafo){
         String[] almacenar;
         String aux;
         ArrayList auxiliar = new ArrayList();
         almacenar = parrafo.split(",");
-            for (int i=0; i<almacenar.length; i++){
+            for(int i=0; i<almacenar.length; i++){
                 aux = almacenar[i];
                 if (aux.contains("(Colombia)")){
-                    if(!encontrarCedulas(almacenar[i]).isEmpty()){
+                    if(!encontrarCedulas(aux).isEmpty()){
                         auxiliar.add(encontrarCedulas(almacenar[i]));
                     }                   
                 }
-            }
-            System.out.print(auxiliar);
+            }            
             return auxiliar;
     }
     
-    
+    /**
+     * Busca los digitos de las cedulas en una linea
+     * @param linea - la linea a analizar
+     * @return string con la cedula
+     */
     public String encontrarCedulas(String linea){
         char aux;
         String aux2 = "";
@@ -1042,7 +1053,8 @@ public class Banco {
                 if(Character.isDigit(aux)){
                    aux2 += Character.toString(aux);
                 }
-        }
+        }   
+        System.out.println(aux2);
         return aux2;
     }
     
@@ -1055,10 +1067,13 @@ public class Banco {
                 almacenar = parrafo.split(";");
                 for (int j=0;j<almacenar.length;j++){
                     if (almacenar[j].contains("NIT #") && almacenar[j].contains("(Colombia)")){
-                        auxiliar = analizarLineaCedulas(parrafo);
+                        for(int k=0;k<analizarLineaNIT(almacenar[j]).size();k++){
+                            auxiliar.add(analizarLineaNIT(almacenar[j]).get(k));
+                        }                            
                     }
                 }
             }
+            System.out.println(auxiliar);
             return auxiliar;
     }
     
@@ -1070,27 +1085,25 @@ public class Banco {
             for (int i=0; i<almacenar.length; i++){
                 aux = almacenar[i];
                 if (aux.contains("(Colombia)")){
-                    //auxiliar = encontrarCedulas(almacenar[i]);
+                    auxiliar.add(encontrarNIT(aux));
                 }
             }
             return auxiliar;
     }
     
     
-    public ArrayList encontrarNIT(String linea){
+    public String encontrarNIT(String linea){
         char aux;
         String aux2 = "";
-        ArrayList auxiliar =null;
+        
         for (int i=1;i<linea.length();i++){
             aux = linea.charAt(i);
                 if(Character.isDigit(aux)){
                    aux2 += Character.toString(aux);
                 }
         }
-        if (!aux2.isEmpty()){
-            auxiliar.add(aux2);
-        }
-        return auxiliar;
+        System.out.println(aux2);
+        return aux2;
     }
 //    public String buscarNombre(String linea){
 //        String[] almacenar = linea.split(" ");
@@ -1187,20 +1200,10 @@ public class Banco {
         }    
         return auxiliar;
     }
-    
-    public String probar(){
-        
-        String cedulas = "";
-        for(int i = 0; i < cedulasReportadas.size(); i++){
-            cedulas += cedulasReportadas.get(i) + " ";
-        }
-        return cedulas;
-    }
-    
-    
+   
     public static void main(String[] args){
         Banco banco = new Banco();
-        System.out.println(banco.probar());
+   
         System.out.println(banco.cedulasReportadas.size() + "\n");
         System.out.print(banco.nitsReportados.size());
     }
