@@ -20,12 +20,8 @@ public class Banco {
     private HashMap clientesEnEspera;
     private HashMap clientesAceptados;
     private HashMap OFAC;
+    private HashMap OFACaux;
     private HashMap empresas;
-    private HashMap empresasConRepresentante;
-    private HashMap cuentasCorriente;
-    private HashMap cuentasDeAhorros;
-    private HashMap tarjetasDeCredito;
-    private HashMap chequeras;
     
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -35,51 +31,54 @@ public class Banco {
         
         this.clientesEnEspera = new HashMap();
         this.clientesAceptados = new HashMap();
-        this.OFAC = new HashMap();
+        //this.representantesEnEspera = new HashMap();
+        //this.representantesAceptados = new HashMap();
         this.empresas = new HashMap();
-        this.empresasConRepresentante = new HashMap();
     }
     
-    public String adicionarEmpresa(Empresa empresa){
-        if (!empresas.containsKey(empresa.getNit())){
-                empresas.put(empresa.getNit(), empresa);
-            return "La empresa se agregó exitosamente";
-        }else{
-            return "La empresa no se pudó agregar";
-        }
-    }
-    
-    public String agregarEmpresa(String ced, String nit){
-        if(!empresasConRepresentante.containsKey(nit)){
-            if(clientesEnEspera.containsKey(ced) && empresas.containsKey(nit)){
-            Representante r = (Representante) clientesEnEspera.get(ced);
+    public String agregarEmpresa(String ced, Empresa empresa){
+        boolean encontrado = false;
+        Set nits = empresas.keySet();
+        Iterator i = nits.iterator();
+        while(i.hasNext() && (encontrado == false)){
+            String nit = (String) i.next();
             Empresa e = (Empresa) empresas.get(nit);
-            if(r.getPersona() == "Representante Legal"){
-                empresasConRepresentante.put(nit, e);
-                return r.agregarEmpresas(e);
-            }else{
-                return "La empresa no se pudó agregar";
+            if(e.getNit() == empresa.getNit()){
+                encontrado = true;
+            }
+            else{
+                encontrado = false;
+            }
+        }
+        
+        if(clientesAceptados.containsKey(ced)){
+            Representante r = (Representante) clientesAceptados.get(ced);
+            if(!r.verificarEmpresa(ced) && (encontrado == false)){
+                r.agregarEmpresas(empresa);
+                clientesAceptados.put(ced, r);
+                empresas.put(empresa.getNit(), empresa);
+                return "La empresa se adiciono con exito";
+            }
+            else{
+                return "No se pudó agregar la empresa";
             }
         }else{
-            if(clientesAceptados.containsKey(ced) && empresas.containsKey(nit)){
-                Representante r = (Representante) clientesAceptados.get(ced);
-                Empresa e = (Empresa) empresas.get(nit);
-                if(r.getPersona() == "Representante Legal"){
-                    empresasConRepresentante.put(nit, e);
-                    return r.agregarEmpresas(e);
-                }else{
-                    return "La empresa no se pudó agregar";
+            if(clientesEnEspera.containsKey(ced)){
+                Representante r = (Representante) clientesEnEspera.get(ced);
+                if(!r.verificarEmpresa(ced) && (encontrado == false)){
+                    r.agregarEmpresas(empresa);
+                    clientesEnEspera.put(ced, r);
+                    empresas.put(empresa.getNit(), empresa);
+                    return "La empresa se adiciono con exito";
+                }
+                else{
+                    return "No se pudó agregar la empresa";
                 }
             }else{
-                return "La empresa no se pudó agregar";
+                return "No se pudó agregar la empresa";
             }
         }
-        }else{
-            return "La empresa no se pudó agregar";
-        }
     }
-            
-       
     
     public boolean revisarReferenciasCliente(String ced){
         if(clientesEnEspera.containsKey(ced)){
@@ -216,11 +215,6 @@ public class Banco {
         if(clientesEnEspera.containsKey(cedula)){
             Cliente c = (Cliente) clientesEnEspera.get(cedula);
             if(c.getPersona() == "Persona Natural"){
-                CuentaCorriente cc = c.getCuentaCorriente();
-                CuentaDeAhorros ca = c.getCuentaDeAhorros();
-                TarjetaDeCredito tc = c.getTarjetaC();
-                TarjetaDebito td = c.getTarjetaD();
-                Chequera che = c.getChequera();
                 return  "Persona: " + c.getPersona() +
                         "\n" + "Estado: " + c.getEstado() +
                         "\n" + "Nombre: " + c.getNombre() +
@@ -231,19 +225,9 @@ public class Banco {
                         "\n" + "Ingresos Mensuales: " + c.getIngresos() +
                         "\n" + "Egresos Mensuales: " + c.getEgresos() +
                         "\n" + "Actividad Economica: " + c.getActEconomica() +
-                        "\n" + c.cedulasReferencias() +
-                        "\n" + "Cuenta corriente: " + cc.getNumeroCuenta() +
-                        "\n" + "Cuenta de ahorros: " + ca.getNumeroCuenta() +
-                        "\n" + "Tarjeta de credito: " + tc.getNumeroTarjeta() +
-                        "\n" + "Tarjeta debito: " + td.getEstado() +
-                        "\n" + "Chequera: " + che.getNumeroChequera();
+                        "\n" + c.cedulasReferencias();
             }else{
                 Representante r = (Representante) clientesEnEspera.get(cedula);
-                CuentaCorriente cc = r.getCuentaCorriente();
-                CuentaDeAhorros ca = r.getCuentaDeAhorros();
-                TarjetaDeCredito tc = r.getTarjetaC();
-                TarjetaDebito td = r.getTarjetaD();
-                Chequera che = r.getChequera();
                 return  "Persona: " + r.getPersona() +
                         "\n" + "Estado: " + r.getEstado() +
                         "\n" + "Nombre: " + r.getNombre() +
@@ -255,23 +239,13 @@ public class Banco {
                         "\n" + "Egresos Mensuales: " + r.getEgresos() +
                         "\n" + "Actividad Economica: " + r.getActEconomica() +
                         "\n" + r.cedulasReferencias() +
-                        "\n" + r.consultarEmpresas() +
-                        "\n" + "Cuenta corriente: " + cc.getNumeroCuenta() +
-                        "\n" + "Cuenta de ahorros: " + ca.getNumeroCuenta() +
-                        "\n" + "Tarjeta de credito: " + tc.getNumeroTarjeta() +
-                        "\n" + "Tarjeta debito: " + td.getEstado() +
-                        "\n" + "Chequera: " + che.getNumeroChequera();
+                        "\n" + r.consultarEmpresas();
             }
         }else{
             if(clientesAceptados.containsKey(cedula)){
                 Cliente c = (Cliente) clientesAceptados.get(cedula);
                 if(c.getPersona() == "Persona Natural"){
-                CuentaCorriente cc = c.getCuentaCorriente();
-                CuentaDeAhorros ca = c.getCuentaDeAhorros();
-                TarjetaDeCredito tc = c.getTarjetaC();
-                TarjetaDebito td = c.getTarjetaD();
-                Chequera che = c.getChequera();
-                    return  "Persona: " + c.getPersona() +
+                return  "Persona: " + c.getPersona() +
                         "\n" + "Estado: " + c.getEstado() +
                         "\n" + "Nombre: " + c.getNombre() +
                         "\n" + "Apellido: " + c.getApellido() +
@@ -281,19 +255,9 @@ public class Banco {
                         "\n" + "Ingresos Mensuales: " + c.getIngresos() +
                         "\n" + "Egresos Mensuales: " + c.getEgresos() +
                         "\n" + "Actividad Economica: " + c.getActEconomica() +
-                        "\n" + c.cedulasReferencias() +
-                        "\n" + "Cuenta corriente: " + cc.getNumeroCuenta() +
-                        "\n" + "Cuenta de ahorros: " + ca.getNumeroCuenta() +
-                        "\n" + "Tarjeta de credito: " + tc.getNumeroTarjeta() +
-                        "\n" + "Tarjeta debito: " + td.getEstado() +
-                        "\n" + "Chequera: " + che.getNumeroChequera();    
+                        "\n" + c.cedulasReferencias();
             }else{
                 Representante r = (Representante) clientesAceptados.get(cedula);
-                CuentaCorriente cc = r.getCuentaCorriente();
-                CuentaDeAhorros ca = r.getCuentaDeAhorros();
-                TarjetaDeCredito tc = r.getTarjetaC();
-                TarjetaDebito td = r.getTarjetaD();
-                Chequera che = r.getChequera();
                 return  "Persona: " + r.getPersona() +
                         "\n" + "Estado: " + r.getEstado() +
                         "\n" + "Nombre: " + r.getNombre() +
@@ -305,12 +269,7 @@ public class Banco {
                         "\n" + "Egresos Mensuales: " + r.getEgresos() +
                         "\n" + "Actividad Economica: " + r.getActEconomica() +
                         "\n" + r.cedulasReferencias() +
-                        "\n" + r.consultarEmpresas() +
-                        "\n" + "Cuenta corriente: " + cc.getNumeroCuenta() +
-                        "\n" + "Cuenta de ahorros: " + ca.getNumeroCuenta() +
-                        "\n" + "Tarjeta de credito: " + tc.getNumeroTarjeta() +
-                        "\n" + "Tarjeta debito: " + td.getEstado() +
-                        "\n" + "Chequera: " + che.getNumeroChequera();
+                        "\n" + r.consultarEmpresas();
             }
         }else{
                 return "No se encontró el cliente";
@@ -433,498 +392,6 @@ public class Banco {
         }
         return salida;
     }
-    
-    public String agregarCuentaCorriente(String cedula, String num, String saldo, String DS, String IRM){
-        String salida = "";
-        if(!cuentasCorriente.containsKey(num)){
-        if(clientesEnEspera.containsKey(cedula)){
-            Cliente c = (Cliente) clientesEnEspera.get(cedula);
-            if(c.getPersona() == "Persona Natural"){
-                c.crearCCorriente(num, saldo, DS, IRM);
-                CuentaCorriente cc = new CuentaCorriente(num, saldo, DS, IRM);
-                cuentasCorriente.put(num, cc);
-                salida = "La Cuente se agrego exitosamente";
-                clientesEnEspera.put(cedula, c);
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(cedula);
-                r.crearCCorriente(num, saldo, DS, IRM);
-                CuentaCorriente cc = new CuentaCorriente(num, saldo, DS, IRM);
-                cuentasCorriente.put(num, cc);
-                salida = "La Cuente se agrego exitosamente";
-                clientesEnEspera.put(cedula, r);
-            }
-        }else{
-            if(clientesAceptados.containsKey(cedula)){
-                Cliente c = (Cliente) clientesAceptados.get(cedula);
-                if(c.getPersona() == "Persona Natural"){
-                    c.crearCCorriente(num, saldo, DS, IRM);
-                    CuentaCorriente cc = new CuentaCorriente(num, saldo, DS, IRM);
-                    cuentasCorriente.put(num, cc);
-                    salida = "La Cuente se agrego exitosamente";
-                    clientesAceptados.put(cedula, c);
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(cedula);
-                    r.crearCCorriente(num, saldo, DS, IRM);
-                    CuentaCorriente cc = new CuentaCorriente(num, saldo, DS, IRM);
-                    cuentasCorriente.put(num, cc);
-                    salida = "La Cuente se agrego exitosamente";
-                    clientesAceptados.put(cedula, r);
-                }
-            }else{
-                salida = "La cuenta no se pudó agregar";
-            }
-        }
-        }else{
-            salida = "La cuenta no se pudó agregar";
-        }
-        return salida;
-    }
-    
-    public String agregarCuentaAhorros(String cedula, String num, String saldo, String IRM){
-        String salida = "";
-        if(!cuentasDeAhorros.containsKey(num)){
-        if(clientesEnEspera.containsKey(cedula)){
-            Cliente c = (Cliente) clientesEnEspera.get(cedula);
-            if(c.getPersona() == "Persona Natural"){
-                c.crearCAhorros(num, saldo, IRM);
-                CuentaDeAhorros ca = new CuentaDeAhorros(num, saldo, IRM);
-                cuentasDeAhorros.put(num, ca);
-                salida = "La Cuente se agrego exitosamente";
-                clientesEnEspera.put(cedula, c);
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(cedula);
-                r.crearCAhorros(num, saldo, IRM);
-                CuentaDeAhorros ca = new CuentaDeAhorros(num, saldo, IRM);
-                cuentasDeAhorros.put(num, ca);
-                salida = "La Cuente se agrego exitosamente";
-                clientesEnEspera.put(cedula, r);
-            }
-        }else{
-            if(clientesAceptados.containsKey(cedula)){
-                Cliente c = (Cliente) clientesAceptados.get(cedula);
-                if(c.getPersona() == "Persona Natural"){
-                    c.crearCAhorros(num, saldo, IRM);
-                    CuentaDeAhorros ca = new CuentaDeAhorros(num, saldo, IRM);
-                    cuentasDeAhorros.put(num, ca);
-                    salida = "La Cuente se agrego exitosamente";
-                    clientesAceptados.put(cedula, c);
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(cedula);
-                    r.crearCAhorros(num, saldo, IRM);
-                    CuentaDeAhorros ca = new CuentaDeAhorros(num, saldo, IRM);
-                    cuentasDeAhorros.put(num, ca);
-                    salida = "La Cuente se agrego exitosamente";
-                    clientesAceptados.put(cedula, r);
-                }
-            }else{
-                salida = "La cuenta no se pudó agregar";
-            }
-        }
-        }else{
-            salida = "La cuenta no se pudó agregar";
-        }
-        return salida;
-    }
-    
-    public String agregarTCredito(String cedula, String numTarjeta, String numSeguridad, String cupoT, String gastoT, String cupoA, String expedicion, String vencimiento, String contraseña){
-        String salida = "";
-        if(!tarjetasDeCredito.containsKey(numTarjeta)){
-        if(clientesEnEspera.containsKey(cedula)){
-            Cliente c = (Cliente) clientesEnEspera.get(cedula);
-            if(c.getPersona() == "Persona Natural"){
-                c.crearTCredito(numTarjeta, numSeguridad, cupoT, gastoT, cupoA, expedicion, vencimiento, contraseña);
-                TarjetaDeCredito tC = new TarjetaDeCredito(numTarjeta, numSeguridad, cupoT, gastoT, cupoA, expedicion, vencimiento, contraseña);
-                tarjetasDeCredito.put(numTarjeta, tC);
-                salida = "La tarjeta se agrego exitosamente";
-                clientesEnEspera.put(cedula, c);
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(cedula);
-                r.crearTCredito(numTarjeta, numSeguridad, cupoT, gastoT, cupoA, expedicion, vencimiento, contraseña);
-                TarjetaDeCredito tC = new TarjetaDeCredito(numTarjeta, numSeguridad, cupoT, gastoT, cupoA, expedicion, vencimiento, contraseña);
-                tarjetasDeCredito.put(numTarjeta, tC);
-                salida = "La tarjeta se agrego exitosamente";
-                clientesEnEspera.put(cedula, r);
-            }
-        }else{
-            if(clientesAceptados.containsKey(cedula)){
-                Cliente c = (Cliente) clientesAceptados.get(cedula);
-                if(c.getPersona() == "Persona Natural"){
-                    c.crearTCredito(numTarjeta, numSeguridad, cupoT, gastoT, cupoA, expedicion, vencimiento, contraseña);
-                    TarjetaDeCredito tC = new TarjetaDeCredito(numTarjeta, numSeguridad, cupoT, gastoT, cupoA, expedicion, vencimiento, contraseña);
-                    tarjetasDeCredito.put(numTarjeta, tC);
-                    salida = "La tarjeta se agrego exitosamente";
-                    clientesAceptados.put(cedula, c);
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(cedula);
-                    r.crearTCredito(numTarjeta, numSeguridad, cupoT, gastoT, cupoA, expedicion, vencimiento, contraseña);
-                    TarjetaDeCredito tC = new TarjetaDeCredito(numTarjeta, numSeguridad, cupoT, gastoT, cupoA, expedicion, vencimiento, contraseña);
-                    tarjetasDeCredito.put(numTarjeta, tC);
-                    salida = "La tarjeta se agrego exitosamente";
-                    clientesAceptados.put(cedula, r);
-                }
-            }else{
-                salida = "La tarjeta no se pudó agregar";
-            }
-        }
-        }else{
-            salida = "La tarjeta no se pudó agregar";
-        }
-        return salida;
-    }
-    
-    public String agregarTDebito(String cedula, String expedicion, String estado){
-        String salida = "";
-        if(clientesEnEspera.containsKey(cedula)){
-            Cliente c = (Cliente) clientesEnEspera.get(cedula);
-            if(c.getPersona() == "Persona Natural"){
-                c.crearTDebito(expedicion, estado);
-                salida = "La tarjeta se agrego exitosamente";
-                clientesEnEspera.put(cedula, c);
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(cedula);
-                r.crearTDebito(expedicion, estado);
-                salida = "La tarjeta se agrego exitosamente";
-                clientesEnEspera.put(cedula, r);
-            }
-        }else{
-            if(clientesAceptados.containsKey(cedula)){
-                Cliente c = (Cliente) clientesAceptados.get(cedula);
-                if(c.getPersona() == "Persona Natural"){
-                    c.crearTDebito(expedicion, estado);
-                    salida = "La tarjeta se agrego exitosamente";
-                    clientesAceptados.put(cedula, c);
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(cedula);
-                    r.crearTDebito(expedicion, estado);
-                    salida = "La tarjeta se agrego exitosamente";
-                    clientesAceptados.put(cedula, r);
-                }
-            }else{
-                salida = "La tarjeta no se pudó agregar";
-            }
-        }
-        return salida;
-    }
-    
-    public String agregarChequera(String cedula, String numChequera){
-        String salida = "";
-        if(!tarjetasDeCredito.containsKey(numChequera)){
-        if(clientesEnEspera.containsKey(cedula)){
-            Cliente c = (Cliente) clientesEnEspera.get(cedula);
-            if(c.getPersona() == "Persona Natural"){
-                c.crearChequera(numChequera);
-                Chequera che = new Chequera(numChequera);
-                chequeras.put(numChequera, che);
-                salida = "La tarjeta se agrego exitosamente";
-                clientesEnEspera.put(cedula, c);
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(cedula);
-                r.crearChequera(numChequera);
-                Chequera che = new Chequera(numChequera);
-                chequeras.put(numChequera, che);
-                salida = "La tarjeta se agrego exitosamente";
-                clientesEnEspera.put(cedula, r);
-            }
-        }else{
-            if(clientesAceptados.containsKey(cedula)){
-                Cliente c = (Cliente) clientesAceptados.get(cedula);
-                if(c.getPersona() == "Persona Natural"){
-                    c.crearChequera(numChequera);
-                    Chequera che = new Chequera(numChequera);
-                    chequeras.put(numChequera, che);
-                    salida = "La tarjeta se agrego exitosamente";
-                    clientesAceptados.put(cedula, c);
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(cedula);
-                    r.crearChequera(numChequera);
-                    Chequera che = new Chequera(numChequera);
-                    chequeras.put(numChequera, che);
-                    salida = "La tarjeta se agrego exitosamente";
-                    clientesAceptados.put(cedula, r);
-                }
-            }else{
-                salida = "La tarjeta no se pudó agregar";
-            }
-        }
-        }else{
-            salida = "La tarjeta no se pudó agregar";
-        }
-        return salida;
-    }
-    
-    public String consultarCuentaCorriente(String ced){
-        String salida;
-        if(clientesEnEspera.containsKey(ced)){
-            Cliente c = (Cliente) clientesEnEspera.get(ced);
-            if(c.getPersona() == "Persona Natural"){
-                salida = c.consultarCCorriente();
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(ced);
-                salida = r.consultarCCorriente();
-            }
-        }else{
-            if(clientesAceptados.containsKey(ced)){
-                Cliente c = (Cliente) clientesAceptados.get(ced);
-                if(c.getPersona() == "Persona Natural"){
-                    salida = c.consultarCCorriente();
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(ced);
-                    salida = r.consultarCCorriente();
-                }
-            }else{
-                salida = "No se encontró la cuenta corriente";
-            }
-        }
-        return salida;
-    }
-    
-    public String consultarCuentaAhorros(String ced){
-        String salida;
-        if(clientesEnEspera.containsKey(ced)){
-            Cliente c = (Cliente) clientesEnEspera.get(ced);
-            if(c.getPersona() == "Persona Natural"){
-                salida = c.consultarCAhorros();
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(ced);
-                salida = r.consultarCAhorros();
-            }
-        }else{
-            if(clientesAceptados.containsKey(ced)){
-                Cliente c = (Cliente) clientesAceptados.get(ced);
-                if(c.getPersona() == "Persona Natural"){
-                    salida = c.consultarCAhorros();
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(ced);
-                    salida = r.consultarCAhorros();
-                }
-            }else{
-                salida = "No se encontró la cuenta corriente";
-            }
-        }
-        return salida;
-    }
-    
-    public String consultarTCredito(String ced){
-        String salida;
-        if(clientesEnEspera.containsKey(ced)){
-            Cliente c = (Cliente) clientesEnEspera.get(ced);
-            if(c.getPersona() == "Persona Natural"){
-                salida = c.consultarTCredito();
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(ced);
-                salida = r.consultarTCredito();
-            }
-        }else{
-            if(clientesAceptados.containsKey(ced)){
-                Cliente c = (Cliente) clientesAceptados.get(ced);
-                if(c.getPersona() == "Persona Natural"){
-                    salida = c.consultarTCredito();
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(ced);
-                    salida = r.consultarTCredito();
-                }
-            }else{
-                salida = "No se encontró la cuenta corriente";
-            }
-        }
-        return salida;
-    }
-    
-    public String consultarTDebito(String ced){
-        String salida;
-        if(clientesEnEspera.containsKey(ced)){
-            Cliente c = (Cliente) clientesEnEspera.get(ced);
-            if(c.getPersona() == "Persona Natural"){
-                salida = c.consultarTDebito();
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(ced);
-                salida = r.consultarTDebito();
-            }
-        }else{
-            if(clientesAceptados.containsKey(ced)){
-                Cliente c = (Cliente) clientesAceptados.get(ced);
-                if(c.getPersona() == "Persona Natural"){
-                    salida = c.consultarTDebito();
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(ced);
-                    salida = r.consultarTDebito();
-                }
-            }else{
-                salida = "No se encontró la cuenta corriente";
-            }
-        }
-        return salida;
-    }
-    
-    public String consultarChequera(String ced){
-        String salida;
-        if(clientesEnEspera.containsKey(ced)){
-            Cliente c = (Cliente) clientesEnEspera.get(ced);
-            if(c.getPersona() == "Persona Natural"){
-                salida = c.consultarChequera();
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(ced);
-                salida = r.consultarChequera();
-            }
-        }else{
-            if(clientesAceptados.containsKey(ced)){
-                Cliente c = (Cliente) clientesAceptados.get(ced);
-                if(c.getPersona() == "Persona Natural"){
-                    salida = c.consultarChequera();
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(ced);
-                    salida = r.consultarChequera();
-                }
-            }else{
-                salida = "No se encontró la cuenta corriente";
-            }
-        }
-        return salida;
-    }
-    
-    public String asociarCCTDevito(String ced){
-        String salida;
-        if(clientesEnEspera.containsKey(ced)){
-            Cliente c = (Cliente) clientesEnEspera.get(ced);
-            if(c.getPersona() == "Persona Natural"){
-                c.asociarCCTDevito();
-                salida = "Asociación exitosa";
-                clientesEnEspera.put(ced, c);
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(ced);
-                r.asociarCCTDevito();
-                salida = "Asociación exitosa";
-                clientesEnEspera.put(ced, r);
-            }
-        }else{
-            if(clientesAceptados.containsKey(ced)){
-                Cliente c = (Cliente) clientesAceptados.get(ced);
-                if(c.getPersona() == "Persona Natural"){
-                    c.asociarCCTDevito();
-                    salida = "Asociación exitosa";
-                    clientesAceptados.put(ced, c);
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(ced);
-                    r.asociarCCTDevito();
-                    salida = "Asociación exitosa";
-                    clientesAceptados.put(ced, r);
-                }
-            }else{
-                salida = "No se pudó asociar";
-            }
-        }
-        return salida;
-    }
-    
-    public String asociarCATDevito(String ced){
-        String salida;
-        if(clientesEnEspera.containsKey(ced)){
-            Cliente c = (Cliente) clientesEnEspera.get(ced);
-            if(c.getPersona() == "Persona Natural"){
-                c.asociarCATDevito();
-                salida = "Asociación exitosa";
-                clientesEnEspera.put(ced, c);
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(ced);
-                r.asociarCATDevito();
-                salida = "Asociación exitosa";
-                clientesEnEspera.put(ced, r);
-            }
-        }else{
-            if(clientesAceptados.containsKey(ced)){
-                Cliente c = (Cliente) clientesAceptados.get(ced);
-                if(c.getPersona() == "Persona Natural"){
-                    c.asociarCATDevito();
-                    salida = "Asociación exitosa";
-                    clientesAceptados.put(ced, c);
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(ced);
-                    r.asociarCATDevito();
-                    salida = "Asociación exitosa";
-                    clientesAceptados.put(ced, r);
-                }
-            }else{
-                salida = "No se pudó asociar";
-            }
-        }
-        return salida;
-    }
-    
-    public String asociarCCChequera(String ced){
-        String salida;
-        if(clientesEnEspera.containsKey(ced)){
-            Cliente c = (Cliente) clientesEnEspera.get(ced);
-            if(c.getPersona() == "Persona Natural"){
-                c.asociarCCChequera();
-                salida = "Asociación exitosa";
-                clientesEnEspera.put(ced, c);
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(ced);
-                r.asociarCCChequera();
-                salida = "Asociación exitosa";
-                clientesEnEspera.put(ced, r);
-            }
-        }else{
-            if(clientesAceptados.containsKey(ced)){
-                Cliente c = (Cliente) clientesAceptados.get(ced);
-                if(c.getPersona() == "Persona Natural"){
-                    c.asociarCCChequera();
-                    salida = "Asociación exitosa";
-                    clientesAceptados.put(ced, c);
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(ced);
-                    r.asociarCCChequera();
-                    salida = "Asociación exitosa";
-                    clientesAceptados.put(ced, r);
-                }
-            }else{
-                salida = "No se pudó asociar";
-            }
-        }
-        return salida;
-    }
-    
-    public String agregarCheque(String ced, String estado, String valor, String beneficiario, String fechaG, String sede, boolean cruzado, String fechaC){
-        String salida;
-        if(clientesEnEspera.containsKey(ced)){
-            Cliente c = (Cliente) clientesEnEspera.get(ced);
-            if(c.getPersona() == "Persona Natural"){
-                Cheque cheque = new Cheque(estado, valor, beneficiario, fechaG, sede, cruzado, fechaC);
-                c.agregarCheque(cheque);
-                salida = "Asociación exitosa";
-                clientesEnEspera.put(ced, c);
-            }else{
-                Representante r = (Representante) clientesEnEspera.get(ced);
-                Cheque cheque = new Cheque(estado, valor, beneficiario, fechaG, sede, cruzado, fechaC);
-                r.agregarCheque(cheque);
-                salida = "Asociación exitosa";
-                clientesEnEspera.put(ced, r);
-            }
-        }else{
-            if(clientesAceptados.containsKey(ced)){
-                Cliente c = (Cliente) clientesAceptados.get(ced);
-                if(c.getPersona() == "Persona Natural"){
-                    Cheque cheque = new Cheque(estado, valor, beneficiario, fechaG, sede, cruzado, fechaC);
-                    c.agregarCheque(cheque);
-                    salida = "Asociación exitosa";
-                    clientesAceptados.put(ced, c);
-                }else{
-                    Representante r = (Representante) clientesAceptados.get(ced);
-                    Cheque cheque = new Cheque(estado, valor, beneficiario, fechaG, sede, cruzado, fechaC);
-                    r.agregarCheque(cheque);
-                    salida = "Asociación exitosa";
-                    clientesAceptados.put(ced, r);
-                }
-            }else{
-                salida = "No se pudó asociar";
-            }
-        }
-        return salida;
-    }
-    
-    
-    
-    
        
     //-------------------------------------------------------------------------
     // GETS AND SETS
@@ -1015,7 +482,5 @@ public class Banco {
         Banco banco = new Banco();
         banco.cargarArchivo();
     }
-    
-    
   
 }
