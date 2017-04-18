@@ -42,12 +42,13 @@ public class Banco {
         this.clientesEnEspera = new HashMap();
         this.clientesAceptados = new HashMap();
         this.empresas = new HashMap();
-        this.listaOfac = new ArrayList();
-        this.cedulasReportadas = new ArrayList();
         this.OFAC = new HashMap();
         this.empresasConRepresentante = new HashMap();
-        this.nitsReportados = new ArrayList();
-        this.reportesPropios = new ArrayList();
+        this.listaOfac = cargarArchivo();  
+        this.cedulasReportadas = analizarParrafoCedulas();
+        this.nitsReportados = analizarParrafoNIT();
+        this.reportesPropios = leerPersistenciaReportados();
+
     }
     
     public String adicionarEmpresa(Empresa empresa){
@@ -237,11 +238,12 @@ public class Banco {
                         "\n" + "Egresos Mensuales: " + c.getEgresos() +
                         "\n" + "Actividad Economica: " + c.getActEconomica() +
                         "\n" + c.cedulasReferencias() +
-                        "\n" + "Cuenta corriente: " + c.numeroCuentaC() +
-                        "\n" + "Cuenta de ahorros: " + c.numeroCuentaA() +
-                        "\n" + "Tarjeta de credito: " + c.numeroTarjetaC() +
-                        "\n" + "Tarjeta debito: " + c.estado() +
-                        "\n" + "Chequera: " + c.numeroChequera();
+                        "\n" + "Cuenta corriente: " + c.numeroCuentaC()// +
+//                        "\n" + "Cuenta de ahorros: " + c.numeroCuentaA() +
+//                        "\n" + "Tarjeta de credito: " + c.numeroTarjetaC() +
+//                        "\n" + "Tarjeta debito: " + c.estado() +
+//                        "\n" + "Chequera: " + c.numeroChequera()
+                        ;
             }else{
                 Representante r = (Representante) clientesEnEspera.get(cedula);
                 CuentaCorriente cc = r.getCuentaCorriente();
@@ -945,16 +947,12 @@ public class Banco {
     public void setClientesAceptados(HashMap Clientes) {
         this.clientesAceptados = Clientes;
     } 
-    public void agregarListaOfac(String parrafo){
-        if (!listaOfac.contains(parrafo)){
-            listaOfac.add(parrafo);
-        }
-    }
-    
-    public void cargarArchivo(){
+
+    public ArrayList cargarArchivo(){
         BufferedReader br;
         String lineaMasculina;
         String parrafoMachoPechoPeludo="";
+        ArrayList auxiliar = new ArrayList();
         try{
             br= new BufferedReader(new FileReader("sdnlist.txt"));
             lineaMasculina = br.readLine();
@@ -963,8 +961,9 @@ public class Banco {
                 if(lineaMasculina.isEmpty()){
                     //System.out.println("hay un salto");
                     if(parrafoMachoPechoPeludo.contains("(Colombia)")){
-                        System.out.println(parrafoMachoPechoPeludo);
-                        agregarListaOfac(parrafoMachoPechoPeludo); //agrega el parrafo a un arreglo de parrafos con todos los reportados
+                        //System.out.println(parrafoMachoPechoPeludo);
+                        auxiliar.add(parrafoMachoPechoPeludo);
+                        //agrega el parrafo a un arreglo de parrafos con todos los reportados
                         // INSERTAR metodo para Enviar a OFAC
                         parrafoMachoPechoPeludo = "";
                     }
@@ -987,47 +986,55 @@ public class Banco {
         }
         catch(FileNotFoundException e){
             System.out.println ("Archivo no encontrado");
+            e.printStackTrace();
         }
         catch(IOException e){
             System.out.println("Algo esta mal :c");
+            e.printStackTrace();
+            
         }
-//        catch(Exception e){
-//            System.out.println("error al agregar al OFAC");
-//        }
+        return auxiliar;
     }
     // Sin probar posible fallo
     // Para que esto funcione hay que habilitar OFAC para crear un Hash de OFACS
 //    // Puede que falte funcion para combinar estos metodos...
     
     // NUEVO METODO busca en la lista Ofac si esta LA CEDULA del cliente y devuelve verdadero o falso si lo encunentra o no... en teoria funciona... no ha sido probado
-    public void analizarParrafoCedulas(String id){
+    public ArrayList analizarParrafoCedulas(){
         String[] almacenar;
         String parrafo;
-            for (int i=0;i<=listaOfac.size();i++){
-                parrafo = listaOfac.get(i).toString();
+        ArrayList auxiliar = new ArrayList();
+            for (int i=0;i<listaOfac.size();i++){
+                parrafo = (String) listaOfac.get(i);
                 almacenar = parrafo.split(";");
-                for (int j=0;j<=almacenar.length;j++){
+                for (int j=0;j<almacenar.length;j++){
                     if (almacenar[j].contains("Cedula No.") && almacenar[j].contains("(Colombia)")){
-                        analizarLineaCedulas(parrafo, id);
+                        auxiliar = analizarLineaCedulas(almacenar[j]);
                     }
                 }
             }
+            return auxiliar;
     }
     
-    public void analizarLineaCedulas(String parrafo, String id){
+    public ArrayList analizarLineaCedulas(String parrafo){
         String[] almacenar;
         String aux;
+        ArrayList auxiliar = new ArrayList();
         almacenar = parrafo.split(",");
-            for (int i=0; i<=almacenar.length; i++){
+            for (int i=0; i<almacenar.length; i++){
                 aux = almacenar[i];
                 if (aux.contains("(Colombia)")){
-                    encontrarCedulas(id);
+                    if(!encontrarCedulas(almacenar[i]).isEmpty()){
+                        auxiliar.add(encontrarCedulas(almacenar[i]));
+                    }                   
                 }
             }
+            System.out.print(auxiliar);
+            return auxiliar;
     }
     
     
-    public void encontrarCedulas(String linea){
+    public String encontrarCedulas(String linea){
         char aux;
         String aux2 = "";
         for (int i=1;i<linea.length();i++){
@@ -1036,50 +1043,54 @@ public class Banco {
                    aux2 += Character.toString(aux);
                 }
         }
-        if (!aux2.isEmpty()){
-            cedulasReportadas.add(aux2);
-        }
+        return aux2;
     }
     
-   public void analizarParrafoNIT(String id){
+    public ArrayList analizarParrafoNIT(){
         String[] almacenar;
         String parrafo;
-            for (int i=0;i<=listaOfac.size();i++){
-                parrafo = listaOfac.get(i).toString();
+        ArrayList auxiliar = new ArrayList();
+            for (int i=0;i<listaOfac.size();i++){
+                parrafo = (String) listaOfac.get(i);
                 almacenar = parrafo.split(";");
-                for (int j=0;j<=almacenar.length;j++){
+                for (int j=0;j<almacenar.length;j++){
                     if (almacenar[j].contains("NIT #") && almacenar[j].contains("(Colombia)")){
-                        analizarLineaCedulas(parrafo, id);
+                        auxiliar = analizarLineaCedulas(parrafo);
                     }
                 }
             }
+            return auxiliar;
     }
     
-    public void analizarLineaNIT(String parrafo, String id){
+    public ArrayList analizarLineaNIT(String parrafo){
         String[] almacenar;
         String aux;
+        ArrayList auxiliar = new ArrayList();
         almacenar = parrafo.split(",");
-            for (int i=0; i<=almacenar.length; i++){
+            for (int i=0; i<almacenar.length; i++){
                 aux = almacenar[i];
                 if (aux.contains("(Colombia)")){
-                    encontrarCedulas(id);
+                    //auxiliar = encontrarCedulas(almacenar[i]);
                 }
             }
+            return auxiliar;
     }
     
     
-    public void encontrarNIT(String linea){
+    public ArrayList encontrarNIT(String linea){
         char aux;
         String aux2 = "";
+        ArrayList auxiliar =null;
         for (int i=1;i<linea.length();i++){
             aux = linea.charAt(i);
                 if(Character.isDigit(aux)){
-                    aux2 += Character.toString(aux);          
+                   aux2 += Character.toString(aux);
                 }
         }
         if (!aux2.isEmpty()){
-            nitsReportados.add(aux2);
+            auxiliar.add(aux2);
         }
+        return auxiliar;
     }
 //    public String buscarNombre(String linea){
 //        String[] almacenar = linea.split(" ");
@@ -1122,10 +1133,11 @@ public class Banco {
         }
     }
     
-    public void leerPersistenciaReportados(){
+    public ArrayList leerPersistenciaReportados(){
         BufferedReader br;
         String lineaMasculina;
         int randomNum;
+        ArrayList auxiliar = new ArrayList();
         try{
             br= new BufferedReader(new FileReader("PersistenciaDeReportados.txt"));
             lineaMasculina = br.readLine();
@@ -1144,7 +1156,7 @@ public class Banco {
                         String nivelDeCriticidad;
                         cutedString = aux2.substring(0, aux2.length()-2);
                         nivelDeCriticidad = aux2.substring((aux2.length()-2), (aux2.length()-1));
-                        reportesPropios.add("Cedula No." + cutedString + "Nivel de Criticidad" + nivelDeCriticidad);
+                        auxiliar.add("Cedula No." + cutedString + "Nivel de Criticidad" + nivelDeCriticidad);
                 }
                 else{
                     char aux;
@@ -1173,11 +1185,24 @@ public class Banco {
         catch(IOException e){
             System.out.println("Algo esta mal :c");
         }    
+        return auxiliar;
     }
+    
+    public String probar(){
+        
+        String cedulas = "";
+        for(int i = 0; i < cedulasReportadas.size(); i++){
+            cedulas += cedulasReportadas.get(i) + " ";
+        }
+        return cedulas;
+    }
+    
     
     public static void main(String[] args){
         Banco banco = new Banco();
-        banco.cargarArchivo();
+        System.out.println(banco.probar());
+        System.out.println(banco.cedulasReportadas.size() + "\n");
+        System.out.print(banco.nitsReportados.size());
     }
   
 }
