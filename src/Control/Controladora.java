@@ -34,9 +34,13 @@ public class Controladora {
         banco = new Banco();
     }
     
-    public String agregarEmpresa(String ced, String razonSocial, String nit){
+    public String adicionarEmpresa(String razonSocial, String nit){
         Empresa empresa = new Empresa(razonSocial, nit);
-        return banco.agregarEmpresa(ced, empresa);
+        return banco.adicionarEmpresa(empresa);
+    }
+    
+    public String agregarEmpresa(String ced, String nit){
+        return banco.agregarEmpresa(ced, nit);
     }
     
     public String agregarClientesEnEspera(boolean check, String per, String est, String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
@@ -79,8 +83,61 @@ public class Controladora {
         return banco.consultarReferencias(ced, cedula);
     }
     
+    public String agregarCuentaCorriente(String cedula, String num, String saldo, String DS, String IRM){
+        return banco.agregarCuentaCorriente(cedula, num, saldo, DS, IRM);
+    }
     
+    public String agregarCuentaAhorros(String cedula, String num, String saldo, String IRM){
+        return banco.agregarCuentaAhorros(cedula, num, saldo, IRM);
+    }
     
+    public String agregarTCredito(String cedula, String numTarjeta, String numSeguridad, String cupoT, String gastoT, String cupoA, String expedicion, String vencimiento, String contraseña){
+        return banco.agregarTCredito(cedula, numTarjeta, numSeguridad, cupoT, gastoT, cupoA, expedicion, vencimiento, contraseña);
+    }
+    
+    public String agregarTDebito(String cedula, String expedicion, String estado){
+        return banco.agregarTDebito(cedula, expedicion, estado);
+    }
+    
+    public String agregarChequera(String cedula, String numChequera){
+        return banco.agregarChequera(cedula, numChequera);
+    }
+    
+    public String consultarCuentaCorriente(String ced){
+        return banco.consultarCuentaCorriente(ced);
+    }
+    
+    public String consultarCuentaAhorros(String ced){
+        return banco.consultarCuentaAhorros(ced);
+    }
+    
+    public String consultarTCredito(String ced){
+        return banco.consultarTCredito(ced);
+    }
+    
+    public String consultarTDebito(String ced){
+        return banco.consultarTDebito(ced);
+    }
+    
+    public String consultarChequera(String ced){
+        return banco.consultarChequera(ced);
+    }
+    
+    public String asociarCCTDevito(String ced){
+        return banco.asociarCCTDevito(ced);
+    }
+    
+    public String asociarCATDevito(String ced){
+        return banco.asociarCATDevito(ced);
+    }
+    
+    public String asociarCCChequera(String ced){
+        return banco.asociarCCChequera(ced);
+    }
+    
+    public String agregarCheque(String ced, String estado, String valor, String beneficiario, String fechaG, String sede, boolean cruzado, String fechaC){
+        return banco.agregarCheque(ced, estado, valor, beneficiario, fechaG, sede, cruzado, fechaC);
+    }
     
     
    

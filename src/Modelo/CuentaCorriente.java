@@ -10,46 +10,45 @@ package Modelo;
  * @author invitado
  */
 public class CuentaCorriente {
-    private String numeroCuenta, disponibilidadDeSobregiro;
-    private int Saldo,interesDeRentabilidadMensual;
+    private String numeroCuenta, saldo, disponibilidadDeSobregiro, interesDeRentabilidadMensual;
     
-    public CuentaCorriente(String numCuenta, String dispDeSobregiro, int sald, int intDeRentMensual){
-        this.numeroCuenta=numCuenta;
-        this.disponibilidadDeSobregiro=dispDeSobregiro;
-        this.interesDeRentabilidadMensual=intDeRentMensual;
-        this.Saldo=sald;
+    
+    public CuentaCorriente(String num, String saldo, String DS, String IRM){
+        this.numeroCuenta=num;
+        this.saldo=saldo;
+        this.disponibilidadDeSobregiro=DS;
+        this.interesDeRentabilidadMensual=IRM;
     }
 
     public String getNumeroCuenta() {
         return numeroCuenta;
     }
 
-    public void setNumeroCuenta(String numeroCuenta) {
-        this.numeroCuenta = numeroCuenta;
+    public String getSaldo() {
+        return saldo;
     }
 
     public String getDisponibilidadDeSobregiro() {
         return disponibilidadDeSobregiro;
     }
 
+    public String getInteresDeRentabilidadMensual() {
+        return interesDeRentabilidadMensual;
+    }
+
+    public void setNumeroCuenta(String numeroCuenta) {
+        this.numeroCuenta = numeroCuenta;
+    }
+
+    public void setSaldo(String saldo) {
+        this.saldo = saldo;
+    }
+
     public void setDisponibilidadDeSobregiro(String disponibilidadDeSobregiro) {
         this.disponibilidadDeSobregiro = disponibilidadDeSobregiro;
     }
 
-    public int getSaldo() {
-        return Saldo;
-    }
-
-    public void setSaldo(int Saldo) {
-        this.Saldo = Saldo;
-    }
-
-    public int getInteresDeRentabilidadMensual() {
-        return interesDeRentabilidadMensual;
-    }
-
-    public void setInteresDeRentabilidadMensual(int interesDeRentabilidadMensual) {
+    public void setInteresDeRentabilidadMensual(String interesDeRentabilidadMensual) {
         this.interesDeRentabilidadMensual = interesDeRentabilidadMensual;
     }
-    
 }

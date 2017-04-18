@@ -9,37 +9,38 @@ package Modelo;
  * @author invitado
  */
 public class CuentaDeAhorros {
-    private String numeroCuenta;
-    private String Saldo;
-    private double TasaRentabilidad;
-    public CuentaDeAhorros(String numeroDeCuenta,String Saldo,double tasaDeRentabilidad){
-    this.numeroCuenta=numeroDeCuenta;
-    this.Saldo=Saldo;
-    this.TasaRentabilidad=tasaDeRentabilidad;
+    private String numeroCuenta, Saldo, interesDeRentabilidadMensual;
+    
+    public CuentaDeAhorros(String num,String Saldo,String IRM){
+    this.numeroCuenta = num;
+    this.Saldo = Saldo;
+    this.interesDeRentabilidadMensual = IRM;
     }
 
     public String getNumeroCuenta() {
         return numeroCuenta;
     }
 
-    public void setNumeroCuenta(String numeroCuenta) {
-        this.numeroCuenta = numeroCuenta;
-    }
-
     public String getSaldo() {
         return Saldo;
+    }
+
+    public String getInteresDeRentabilidadMensual() {
+        return interesDeRentabilidadMensual;
+    }
+
+    public void setNumeroCuenta(String numeroCuenta) {
+        this.numeroCuenta = numeroCuenta;
     }
 
     public void setSaldo(String Saldo) {
         this.Saldo = Saldo;
     }
 
-    public double getTasaRentabilidad() {
-        return TasaRentabilidad;
+    public void setInteresDeRentabilidadMensual(String interesDeRentabilidadMensual) {
+        this.interesDeRentabilidadMensual = interesDeRentabilidadMensual;
     }
 
-    public void setTasaRentabilidad(double TasaRentabilidad) {
-        this.TasaRentabilidad = TasaRentabilidad;
-    }
+    
     
 }

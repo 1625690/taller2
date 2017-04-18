@@ -12,37 +12,64 @@ import java.util.*;
  * @author invitado
  */
 public class TarjetaDebito {
-    private HashSet asociacion;
-    private String fechaDeExpedicion;
-    private boolean estado;
-    public TarjetaDebito(String expedicion, boolean estado){
-        this.asociacion=new HashSet();
-        this.fechaDeExpedicion=expedicion;
-        this.estado=estado;
-    }
-
-    public HashSet getAsociacion() {
-        return asociacion;
-    }
-
-    public void setAsociacion(HashSet asociacion) {
-        this.asociacion = asociacion;
+    private CuentaCorriente cuentaCorriente;
+    private CuentaDeAhorros cuentaDeAhorros;
+    private String fechaDeExpedicion, estado;
+    
+    public TarjetaDebito(String expedicion, String estado){
+        CuentaCorriente cc = this.cuentaCorriente;
+        CuentaDeAhorros ca = this.cuentaDeAhorros;
+        this.fechaDeExpedicion = expedicion;
+        this.estado = estado;
     }
 
     public String getFechaDeExpedicion() {
         return fechaDeExpedicion;
     }
 
+    public String getEstado() {
+        return estado;
+    }
+
+    public CuentaCorriente getCuentaCorriente() {
+        return cuentaCorriente;
+    }
+
+    public CuentaDeAhorros getCuentaDeAhorros() {
+        return cuentaDeAhorros;
+    }
+
+    public void setCuentaCorriente(CuentaCorriente cuentaCorriente) {
+        this.cuentaCorriente = cuentaCorriente;
+    }
+
+    public void setCuentaDeAhorros(CuentaDeAhorros cuentaDeAhorros) {
+        this.cuentaDeAhorros = cuentaDeAhorros;
+    }
+
     public void setFechaDeExpedicion(String fechaDeExpedicion) {
         this.fechaDeExpedicion = fechaDeExpedicion;
     }
 
-    public boolean isEstado() {
-        return estado;
-    }
-
-    public void setEstado(boolean estado) {
+    public void setEstado(String estado) {
         this.estado = estado;
     }
+    
+    public void asociarCCorriente(CuentaCorriente cc){
+        cuentaCorriente = cc;
+    }
+    
+    public void asociarCAhorros(CuentaDeAhorros ca){
+        cuentaDeAhorros = ca;
+    }
+    
+   public String numeroCA(){
+       return cuentaDeAhorros.getNumeroCuenta();
+   }
+   
+   public String numeroCC(){
+       return cuentaCorriente.getNumeroCuenta();
+   }
+    
     
 }
