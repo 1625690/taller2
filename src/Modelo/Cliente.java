@@ -25,6 +25,12 @@ public class Cliente {
      * Coleccion con las referencias del cliente
      */
     private HashMap referencias;
+    private CuentaCorriente cuentaCorriente;
+    private CuentaDeAhorros cuentaDeAhorros;
+    private TarjetaDeCredito tarjetaC;
+    private TarjetaDebito tarjetaD;
+    private Chequera chequera;
+    
     
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
@@ -53,6 +59,11 @@ public class Cliente {
         this.egresos = eg;
         this.actEconomica = act;
         this.referencias = new HashMap();
+        CuentaCorriente cc = this.cuentaCorriente;
+        CuentaDeAhorros ca = this.cuentaDeAhorros;
+        TarjetaDeCredito tc = this.tarjetaC;
+        TarjetaDebito td = this.tarjetaD;
+        Chequera c = this.chequera;
     }
     
     //-------------------------------------------------------------------------
@@ -146,6 +157,46 @@ public class Cliente {
     public void setReferencias(HashMap referencias) {
         this.referencias = referencias;
     }
+
+    public CuentaCorriente getCuentaCorriente() {
+        return cuentaCorriente;
+    }
+
+    public CuentaDeAhorros getCuentaDeAhorros() {
+        return cuentaDeAhorros;
+    }
+
+    public TarjetaDeCredito getTarjetaC() {
+        return tarjetaC;
+    }
+
+    public TarjetaDebito getTarjetaD() {
+        return tarjetaD;
+    }
+
+    public Chequera getChequera() {
+        return chequera;
+    }
+
+    public void setCuentaCorriente(CuentaCorriente cuentaCorriente) {
+        this.cuentaCorriente = cuentaCorriente;
+    }
+
+    public void setCuentaDeAhorros(CuentaDeAhorros cuentaDeAhorros) {
+        this.cuentaDeAhorros = cuentaDeAhorros;
+    }
+
+    public void setTarjetaC(TarjetaDeCredito tarjetaC) {
+        this.tarjetaC = tarjetaC;
+    }
+
+    public void setTarjetaD(TarjetaDebito tarjetaD) {
+        this.tarjetaD = tarjetaD;
+    }
+
+    public void setChequera(Chequera chequera) {
+        this.chequera = chequera;
+    }
     
     
     
@@ -232,6 +283,82 @@ public class Cliente {
             estanAmbas = false;
         }
         return estanAmbas;
+    }
+    
+    public void crearCCorriente(String num, String saldo, String DS, String IRM){
+        cuentaCorriente = new CuentaCorriente(num, saldo, DS, IRM);
+    }
+    
+    public String consultarCCorriente(){
+        return  "Número de cuenta: "+ cuentaCorriente.getNumeroCuenta() +
+                "\n" + "Saldo: " + cuentaCorriente.getSaldo() +
+                "\n" + "Disponibilidad de sobregiro: " + cuentaCorriente.getDisponibilidadDeSobregiro() +
+                "\n" + "Interés de rentabilidad mensual: " + cuentaCorriente.getInteresDeRentabilidadMensual();
+    }
+    
+    public void crearCAhorros(String num, String saldo, String IRM){
+        cuentaDeAhorros = new CuentaDeAhorros(num, saldo, IRM);
+    }
+    
+    public String consultarCAhorros(){
+        return  "Número de cuenta: "+ cuentaDeAhorros.getNumeroCuenta() +
+                "\n" + "Saldo: " + cuentaDeAhorros.getSaldo() +
+                "\n" + "Interés de rentabilidad mensual: " + cuentaDeAhorros.getInteresDeRentabilidadMensual();
+    }
+    
+    public void crearTCredito(String numTarjeta, String numSeguridad, String cupoT, String gastoT, String cupoA, String expedicion, String vencimiento, String contraseña){
+        tarjetaC = new TarjetaDeCredito(numTarjeta, numSeguridad, cupoT, gastoT, cupoA, expedicion, vencimiento, contraseña);
+    }
+    
+    public String consultarTCredito(){
+        return  "Número de tarjeta: "+ tarjetaC.getNumeroTarjeta() +
+                "\n" + "Número de seguridad: " + tarjetaC.getNumeroSeguridad() +
+                "\n" + "Cupo Total: " + tarjetaC.getCupoTotal() +
+                "\n" + "Gasto Total: " + tarjetaC.getGastoTotal() +
+                "\n" + "Cupo para avances: " + tarjetaC.getCupoAvances() +
+                "\n" + "Fecha expedición: " + tarjetaC.getFechaExpedicion() +
+                "\n" + "Fecha vencimiento: " + tarjetaC.getFechaDeVencimiento() +
+                "\n" + "Contraseña para avances: " + tarjetaC.getCupoTotal();
+    }
+    
+    public void crearTDebito(String expedicion, String estado){
+        tarjetaD = new TarjetaDebito(expedicion, estado);
+    }
+    
+    public String consultarTDebito(){
+        return  "Fecha de expedición: "+ tarjetaD.getFechaDeExpedicion() +
+                "\n" + "Estado: " + tarjetaD.getEstado() +
+                "\n" + "Cuenta de ahorros: " + tarjetaD.numeroCA() +
+                "\n" + "Cuenta Corriente: " + tarjetaD.numeroCC();
+    }
+    
+    public void crearChequera(String numChequera){
+        chequera = new Chequera(numChequera);
+    }
+    
+    public String consultarChequera(){
+        return "Número de chequera: "+ chequera.getNumeroChequera() +
+                "\n" + "Cantidad de cheques: " + chequera.getCantidadCheques() +
+                "\n" + chequera.consultarCheque();
+    }
+    
+    public void asociarCCTDevito(){
+        CuentaCorriente cc = cuentaCorriente;
+        tarjetaD.asociarCCorriente(cc);
+    }
+    
+    public void asociarCATDevito(){
+        CuentaDeAhorros ca = cuentaDeAhorros;
+        tarjetaD.asociarCAhorros(ca);
+    }
+    
+    public void asociarCCChequera(){
+        CuentaCorriente cc = cuentaCorriente;
+        chequera.asociarCCorriente(cc);
+    }
+    
+    public void agregarCheque(Cheque cheque){
+        chequera.agregarCheque(cheque);
     }
 }
 
