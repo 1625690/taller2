@@ -26,6 +26,7 @@ public class Banco {
     private ArrayList listaOfac;
     private ArrayList cedulasReportadas;
     private ArrayList nitsReportados;
+    private ArrayList reportesPropios;   
     //-------------------------------------------------------------------------
     // CONSTRUCTOR
     //-------------------------------------------------------------------------
@@ -39,6 +40,8 @@ public class Banco {
         this.empresas = new HashMap();
         this.listaOfac = new ArrayList();
         this.cedulasReportadas = new ArrayList();
+        this.nitsReportados = new ArrayList();
+        this.reportesPropios = new ArrayList();
     }
     
     public String agregarEmpresa(String ced, Empresa empresa){
@@ -564,6 +567,69 @@ public class Banco {
 //        }     
 //        return "Esta shit no me sale >:c aiuda";
 //    }
+    
+    public void agregarReportados(String cedula){
+        reportesPropios.add(cedula);
+    }
+    
+    
+    public void escribirPersistenciaReportados(){    
+        try{
+            File archivo = new File("PersistenciaDeReportados.txt");
+            FileReader fr = new FileReader(archivo);             
+        }
+        catch (FileNotFoundException e){
+            System.out.println("Archivo no Encontrado");
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    
+    public void leerPersistenciaReportados(){
+        BufferedReader br;
+        String lineaMasculina;
+        try{
+            br= new BufferedReader(new FileReader("PersistenciaDeReportados.txt"));
+            lineaMasculina = br.readLine();
+            while(lineaMasculina != null){
+                //System.out.println(lineaMasculina);
+                if(lineaMasculina.contains("Cedula No.")){
+                    char aux;
+                    String aux2 = "";
+                        for (int i=1;i<lineaMasculina.length();i++){
+                            aux = lineaMasculina.charAt(i);
+                            if(Character.isDigit(aux)){
+                                aux2 += Character.toString(aux);
+                                }
+                        }
+                        reportesPropios.add("Cedula No." + aux2);
+                }
+                else{
+                    char aux;
+                    String aux2 = "";
+                        for (int i=1;i<lineaMasculina.length();i++){
+                            aux = lineaMasculina.charAt(i);
+                            if(Character.isDigit(aux)){
+                                aux2 += Character.toString(aux);
+                                }
+                        }
+                        reportesPropios.add("NIT #" + aux2);
+                }
+                lineaMasculina = br.readLine();
+                
+            }
+            br.close();
+            
+        }
+        catch(FileNotFoundException e){
+            System.out.println ("Archivo no encontrado");
+        }
+        catch(IOException e){
+            System.out.println("Algo esta mal :c");
+        }    
+    }
+    
     public static void main(String[] args){
         Banco banco = new Banco();
         banco.cargarArchivo();
