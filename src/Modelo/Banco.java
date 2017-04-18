@@ -8,6 +8,7 @@ import java.awt.geom.Path2D;
 import java.util.*;
 import java.io.*;
 import javax.swing.SpringLayout;
+import java.util.Random;
 
 /**
  *
@@ -1098,15 +1099,25 @@ public class Banco {
 //        return "Esta shit no me sale >:c aiuda";
 //    }
     
-    public void agregarReportados(String cedula){
-        reportesPropios.add(cedula);
+    public void agregarReportados(String id, String nivelDeCriticidad, boolean aux){
+        //aux true entonces agregar cedula... aux false entonces agrega nit
+        if(aux){
+            reportesPropios.add("Cedula No." + id + "Nivel de Criticidad" + nivelDeCriticidad);
+        }else{
+            reportesPropios.add("NIT #" + id + "Nivel de Criticidad" + nivelDeCriticidad);
+        }
     }
     
     
     public void escribirPersistenciaReportados(){    
         try{
             File archivo = new File("PersistenciaDeReportados.txt");
-            FileReader fr = new FileReader(archivo);             
+            FileReader fr = new FileReader(archivo); 
+            BufferedReader br = new BufferedReader (fr);
+            String linea;
+            while((linea = br.readLine()) != null){
+                 reportesPropios.add(linea);
+            }
         }
         catch (FileNotFoundException e){
             System.out.println("Archivo no Encontrado");
@@ -1119,6 +1130,7 @@ public class Banco {
     public void leerPersistenciaReportados(){
         BufferedReader br;
         String lineaMasculina;
+        int randomNum;
         try{
             br= new BufferedReader(new FileReader("PersistenciaDeReportados.txt"));
             lineaMasculina = br.readLine();
@@ -1129,11 +1141,15 @@ public class Banco {
                     String aux2 = "";
                         for (int i=1;i<lineaMasculina.length();i++){
                             aux = lineaMasculina.charAt(i);
-                            if(Character.isDigit(aux)){
+                            if(Character.isDigit(i)){
                                 aux2 += Character.toString(aux);
                                 }
                         }
-                        reportesPropios.add("Cedula No." + aux2);
+                        String cutedString;
+                        String nivelDeCriticidad;
+                        cutedString = aux2.substring(0, aux2.length()-2);
+                        nivelDeCriticidad = aux2.substring((aux2.length()-2), (aux2.length()-1));
+                        reportesPropios.add("Cedula No." + cutedString + "Nivel de Criticidad" + nivelDeCriticidad);
                 }
                 else{
                     char aux;
@@ -1144,7 +1160,11 @@ public class Banco {
                                 aux2 += Character.toString(aux);
                                 }
                         }
-                        reportesPropios.add("NIT #" + aux2);
+                        String cutedString;
+                        String nivelDeCriticidad;
+                        cutedString = aux2.substring(0, aux2.length()-2);
+                        nivelDeCriticidad = aux2.substring((aux2.length()-2), (aux2.length()-1));
+                        reportesPropios.add("NIT #" + cutedString + "Nivel de Criticidad" + nivelDeCriticidad);
                 }
                 lineaMasculina = br.readLine();
                 
