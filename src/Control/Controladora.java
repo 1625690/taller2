@@ -40,13 +40,26 @@ public class Controladora {
     }
     
     public String agregarEmpresa(String ced, String nit){
-        return banco.agregarEmpresa(ced, nit);
+        String agregado = "";
+        try{
+            agregado = banco.agregarEmpresa(ced, nit);
+        }catch(Exception e){
+            //Captura la excepción y el mensaje
+            agregado = e.getMessage();
+        }
+        return agregado;
     }
     
     public String agregarClientesEnEspera(boolean check, String per, String est, String nom, String ape, String ced, String edad, String genero, String in, String eg, String act){
         Cliente cliente = new Cliente(per, est, nom, ape, ced, edad, genero, in, eg, act);
         Representante representante = new Representante(per, est, nom, ape, ced, edad, genero, in, eg, act);
-        return banco.agregarClientesEnEspera(check, representante, cliente);
+        String agregado = "";
+        try{
+            agregado = banco.agregarClientesEnEspera(check, representante, cliente);
+        }catch(Exception e){
+            agregado = e.getMessage();
+        }
+        return agregado;
     }
     
     public String agregarClientesAceptados(String cedula){
