@@ -60,34 +60,46 @@ public class Banco {
         }
     }
     
-    public String agregarEmpresa(String ced, String nit){
+    public String agregarEmpresa(String ced, String nit)throws Exception{
+        String mensaje = "";
         if(!empresasConRepresentante.containsKey(nit)){
-            if(clientesEnEspera.containsKey(ced) && empresas.containsKey(nit)){
+            if(clientesEnEspera.containsKey(ced) && empresas.containsKey(nit) && !nitsReportados.contains(nit)){
             Representante r = (Representante) clientesEnEspera.get(ced);
             Empresa e = (Empresa) empresas.get(nit);
             if(r.getPersona() == "Representante Legal"){
                 empresasConRepresentante.put(nit, e);
-                return r.agregarEmpresas(e);
+                mensaje = r.agregarEmpresas(e);
             }else{
-                return "La empresa no se pudó agregar";
+                
+                mensaje = "La empresa no se pudó agregar";
             }
         }else{
-            if(clientesAceptados.containsKey(ced) && empresas.containsKey(nit)){
+            if(clientesAceptados.containsKey(ced) && empresas.containsKey(nit) && !nitsReportados.contains(nit)){
                 Representante r = (Representante) clientesAceptados.get(ced);
                 Empresa e = (Empresa) empresas.get(nit);
                 if(r.getPersona() == "Representante Legal"){
                     empresasConRepresentante.put(nit, e);
                     return r.agregarEmpresas(e);
                 }else{
-                    return "La empresa no se pudó agregar";
+                    mensaje = "La empresa no se pudó agregar";
                 }
             }else{
-                return "La empresa no se pudó agregar";
-            }
-        }
+                if(nitsReportados.contains(nit)){
+                    int randomNum = (1 + (int)(Math.random() * 3));
+                    switch(randomNum){
+                    case 1: throw new CriticidadUnoException("Nivel de criticidad Uno imposible agregar"); 
+                    case 2: throw new CriticidadDosException("Nivel de critididad Dos imposible agregar");
+                    case 3: throw new CriticidadTresException("Nivel de criticidad Tres imposible agregar");
+                    }
+                } else {
+                    mensaje = "La empresa no se pudó agregar";
+                    }
+                }
+             }
         }else{
-            return "La empresa no se pudó agregar";
+            mensaje = "La empresa no se pudó agregar, Esta ya existe";
         }
+        return mensaje;
     }
             
        
@@ -106,8 +118,8 @@ public class Banco {
         }
     }
     
-    public String agregarClientesEnEspera(boolean check, Representante r, Cliente c){
-        if(!clientesEnEspera.containsKey(c.getCedula()) && !clientesEnEspera.containsKey(r.getCedula())){
+    public String agregarClientesEnEspera(boolean check, Representante r, Cliente c)throws Exception{
+        if(!clientesEnEspera.containsKey(c.getCedula()) && !clientesEnEspera.containsKey(r.getCedula()) && !cedulasReportadas.contains(c.getCedula())){
             if (check = false){
                 clientesEnEspera.put(c.getCedula(), c);
                 return "cliente adicionado con exito";
@@ -116,7 +128,15 @@ public class Banco {
                 return "cliente adicionado con exito";
             }
         }else{
-            return "No se pudo adicionar el cliente";
+            if(cedulasReportadas.contains(c.getCedula())){
+                int randomNum = (1 + (int)(Math.random() * 3));
+                switch(randomNum){
+                    case 1: throw new CriticidadUnoException("Nivel de criticidad Uno imposible agregar"); 
+                    case 2: throw new CriticidadDosException("Nivel de critididad Dos imposible agregar");
+                    case 3: throw new CriticidadTresException("Nivel de criticidad Tres imposible agregar");
+                }
+                return "No se pudo adicionar el cliente";
+            }else {return "No se pudo adicionar el cliente";}
         }
     }
     
@@ -1149,7 +1169,6 @@ public class Banco {
     public ArrayList leerPersistenciaReportados(){
         BufferedReader br;
         String lineaMasculina;
-        int randomNum;
         ArrayList auxiliar = new ArrayList();
         try{
             br= new BufferedReader(new FileReader("PersistenciaDeReportados.txt"));
@@ -1200,7 +1219,7 @@ public class Banco {
         }    
         return auxiliar;
     }
-   
+    
     public static void main(String[] args){
         Banco banco = new Banco();
    
