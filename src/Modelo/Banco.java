@@ -783,6 +783,31 @@ public class Banco {
         return salida;
     }
     
+    /**
+     * Metodo que consulta una cédula o un nit reportados manualmente
+     * @param identificador -  la cedula o el nit
+     * @return - una cadena en caso de que el cliente no este reportado
+     * @throws Exception - Tipo de criticidad
+     */
+    public String consultarReportadosPropios(String identificador)throws Exception{
+        String reportado = "El cliente o empresa no está reportado en nuestra base de datos";
+        for(int i = 0; i < reportesPropios.size(); i++){
+            //Obtiene el elemento de la lista de reportados propios
+            String rep = (String)reportesPropios.get(i);
+            //Consulta el elemento sea cedula o nit
+            if(reportado.contains(identificador)){
+            //Identifica el nivel de criticidad de la segunda posicion del arreglo
+              String[] linea = rep.split("-"); 
+                switch(Integer.parseInt(linea[2])){
+                    case 1: throw new CriticidadUnoException("Nivel de criticidad Uno imposible agregar"); 
+                    case 2: throw new CriticidadDosException("Nivel de critididad Dos imposible agregar");
+                    case 3: throw new CriticidadTresException("Nivel de criticidad Tres imposible agregar");
+                }     
+            }        
+        }
+        return reportado;
+    }
+    
     public String consultarChequera(String ced){
         String salida;
         if(clientesEnEspera.containsKey(ced)){
